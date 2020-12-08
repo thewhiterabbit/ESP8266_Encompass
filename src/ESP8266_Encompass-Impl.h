@@ -1,62 +1,56 @@
 /****************************************************************************************************************************
-  ESPAsync_WiFiManager-Impl.h
+  ESP8266_Encompass-Impl.h
   For ESP8266 / ESP32 boards
 
-  ESPAsync_WiFiManager is a library for the ESP8266/Arduino platform, using (ESP)AsyncWebServer to enable easy
+  ESP8266_Encompass is a library for the ESP8266/Arduino platform, using (ESP)AsyncWebServer to enable easy
   configuration and reconfiguration of WiFi credentials using a Captive Portal.
 
   Modified from 
-  1. Tzapu               (https://github.com/tzapu/WiFiManager)
-  2. Ken Taylor          (https://github.com/kentaylor)
-  3. Alan Steremberg     (https://github.com/alanswx/ESPAsyncWiFiManager)
-  4. Khoi Hoang          (https://github.com/khoih-prog/ESP_WiFiManager)
+  1. Tzapu                https://github.com/tzapu/WiFiManager
+  2. Ken Taylor           https://github.com/kentaylor
+  3. Alan Steremberg      https://github.com/alanswx/ESPAsyncWiFiManager
+  4. Khoi Hoang           https://github.com/khoih-prog/ESPAsync_WiFiManager
 
-  Built by Khoi Hoang https://github.com/khoih-prog/ESPAsync_WiFiManager
+  Built by Vague Rabbit   https://github.com/thewhiterabbit/ESP8266_Encompass
   Licensed under MIT license
   Version: 1.3.0
 
-  Version Modified By  Date      Comments
-  ------- -----------  ---------- -----------
-  1.0.11  K Hoang      21/08/2020 Initial coding to use (ESP)AsyncWebServer instead of (ESP8266)WebServer. Bump up to v1.0.11
-                                  to sync with ESP_WiFiManager v1.0.11
-  1.1.1   K Hoang      29/08/2020 Add MultiWiFi feature to autoconnect to best WiFi at runtime to sync with 
-                                  ESP_WiFiManager v1.1.1. Add setCORSHeader function to allow flexible CORS
-  1.1.2   K Hoang      17/09/2020 Fix bug in examples.
-  1.2.0   K Hoang      15/10/2020 Restore cpp code besides Impl.h code to use if linker error. Fix bug.
-  1.3.0   K Hoang      04/12/2020 Add LittleFS support to ESP32 using LITTLEFS Library
+  Version   Modified By   Date          Comments
+  -------   -----------   ----------    -----------
+  1.0.0     Vague Rabbit  12/7/2020     Initial edits after fork from Khoi Hoang - Removed all ESP32 code/includes
  *****************************************************************************************************************************/
 
 #pragma once
 
 /////////////////////////////////////////////////////////////////////////////
 
-ESPAsync_WMParameter::ESPAsync_WMParameter(const char *custom)
+Encompass_DataFields::Encompass_DataFields(const char *custom)
 {
   _id = NULL;
   _placeholder = NULL;
   _length = 0;
   _value = NULL;
-  _labelPlacement = WFM_LABEL_BEFORE;
+  _labelPlacement = E_LABEL_BEFORE;
 
   _customHTML = custom;
 }
 
-ESPAsync_WMParameter::ESPAsync_WMParameter(const char *id, const char *placeholder, const char *defaultValue, int length)
+Encompass_DataFields::Encompass_DataFields(const char *id, const char *placeholder, const char *defaultValue, int length)
 {
-  init(id, placeholder, defaultValue, length, "", WFM_LABEL_BEFORE);
+  init(id, placeholder, defaultValue, length, "", E_LABEL_BEFORE);
 }
 
-ESPAsync_WMParameter::ESPAsync_WMParameter(const char *id, const char *placeholder, const char *defaultValue, int length, const char *custom)
+Encompass_DataFields::Encompass_DataFields(const char *id, const char *placeholder, const char *defaultValue, int length, const char *custom)
 {
-  init(id, placeholder, defaultValue, length, custom, WFM_LABEL_BEFORE);
+  init(id, placeholder, defaultValue, length, custom, E_LABEL_BEFORE);
 }
 
-ESPAsync_WMParameter::ESPAsync_WMParameter(const char *id, const char *placeholder, const char *defaultValue, int length, const char *custom, int labelPlacement)
+Encompass_DataFields::Encompass_DataFields(const char *id, const char *placeholder, const char *defaultValue, int length, const char *custom, int labelPlacement)
 {
   init(id, placeholder, defaultValue, length, custom, labelPlacement);
 }
 
-void ESPAsync_WMParameter::init(const char *id, const char *placeholder, const char *defaultValue, int length, const char *custom, int labelPlacement)
+void Encompass_DataFields::init(const char *id, const char *placeholder, const char *defaultValue, int length, const char *custom, int labelPlacement)
 {
   _id = id;
   _placeholder = placeholder;
@@ -77,7 +71,7 @@ void ESPAsync_WMParameter::init(const char *id, const char *placeholder, const c
   _customHTML = custom;
 }
 
-ESPAsync_WMParameter::~ESPAsync_WMParameter()
+Encompass_DataFields::~Encompass_DataFields()
 {
   if (_value != NULL)
   {
@@ -85,30 +79,30 @@ ESPAsync_WMParameter::~ESPAsync_WMParameter()
   }
 }
 
-const char* ESPAsync_WMParameter::getValue()
+const char* Encompass_DataFields::getValue()
 {
   return _value;
 }
 
-const char* ESPAsync_WMParameter::getID()
+const char* Encompass_DataFields::getID()
 {
   return _id;
 }
-const char* ESPAsync_WMParameter::getPlaceholder()
+const char* Encompass_DataFields::getPlaceholder()
 {
   return _placeholder;
 }
 
-int ESPAsync_WMParameter::getValueLength()
+int Encompass_DataFields::getValueLength()
 {
   return _length;
 }
 
-int ESPAsync_WMParameter::getLabelPlacement()
+int Encompass_DataFields::getLabelPlacement()
 {
   return _labelPlacement;
 }
-const char* ESPAsync_WMParameter::getCustomHTML()
+const char* Encompass_DataFields::getCustomHTML()
 {
   return _customHTML;
 }
@@ -117,9 +111,9 @@ const char* ESPAsync_WMParameter::getCustomHTML()
    [getParameters description]
    @access public
 */
-ESPAsync_WMParameter** ESPAsync_WiFiManager::getParameters() 
+Encompass_DataFields** ESP8266_Encompass::getParameters() 
 {
-  return _params;
+  return _DataFields;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -128,14 +122,14 @@ ESPAsync_WMParameter** ESPAsync_WiFiManager::getParameters()
    [getParametersCount description]
    @access public
 */
-int ESPAsync_WiFiManager::getParametersCount() 
+int ESP8266_Encompass::getParametersCount() 
 {
-  return _paramsCount;
+  return _DataFieldsCount;
 }
 
 //////////////////////////////////////////
 
-char* ESPAsync_WiFiManager::getRFC952_hostname(const char* iHostname)
+char* ESP8266_Encompass::getRFC952_hostname(const char* iHostname)
 {
   memset(RFC952_hostname, 0, sizeof(RFC952_hostname));
 
@@ -160,8 +154,8 @@ char* ESPAsync_WiFiManager::getRFC952_hostname(const char* iHostname)
 
 //////////////////////////////////////////
 
-ESPAsync_WiFiManager::ESPAsync_WiFiManager(AsyncWebServer * webserver, DNSServer *dnsserver, const char *iHostname)
-//ESPAsync_WiFiManager::ESPAsync_WiFiManager(const char *iHostname)
+ESP8266_Encompass::ESP8266_Encompass(AsyncWebServer * webserver, DNSServer *dnsserver, const char *iHostname)
+//ESP8266_Encompass::ESP8266_Encompass(const char *iHostname)
 {
 
   server    = webserver;
@@ -172,9 +166,9 @@ ESPAsync_WiFiManager::ESPAsync_WiFiManager(AsyncWebServer * webserver, DNSServer
   _modeless     = false;
   shouldscan    = true;
   
-#if USE_DYNAMIC_PARAMS
-  _max_params = WIFI_MANAGER_MAX_PARAMS;
-  _params = (ESPAsync_WMParameter**)malloc(_max_params * sizeof(ESPAsync_WMParameter*));
+#if USE_DYNAMIC_DataFields
+  _max_DataFields = WIFI_MANAGER_MAX_DataFields;
+  _DataFields = (Encompass_DataFields**)malloc(_max_DataFields * sizeof(Encompass_DataFields*));
 #endif
 
   //WiFi not yet started here, must call WiFi.mode(WIFI_STA) and modify function WiFiGenericClass::mode(wifi_mode_t m) !!!
@@ -183,15 +177,9 @@ ESPAsync_WiFiManager::ESPAsync_WiFiManager(AsyncWebServer * webserver, DNSServer
 
   if (iHostname[0] == 0)
   {
-#ifdef ESP8266
     String _hostname = "ESP8266-" + String(ESP.getChipId(), HEX);
-#else		//ESP32
-    String _hostname = "ESP32-" + String((uint32_t)ESP.getEfuseMac(), HEX);
-#endif
     _hostname.toUpperCase();
-
     getRFC952_hostname(_hostname.c_str());
-
   }
   else
   {
@@ -208,16 +196,14 @@ ESPAsync_WiFiManager::ESPAsync_WiFiManager(AsyncWebServer * webserver, DNSServer
 
 //////////////////////////////////////////
 
-ESPAsync_WiFiManager::~ESPAsync_WiFiManager()
+ESP8266_Encompass::~ESP8266_Encompass()
 {
-#if USE_DYNAMIC_PARAMS
-  if (_params != NULL)
+  if (_DataFields != NULL)
   {
     LOGINFO(F("freeing allocated params!"));
 
-    free(_params);
+    free(_DataFields);
   }
-#endif
 
   if (networkIndices)
   {
@@ -227,26 +213,20 @@ ESPAsync_WiFiManager::~ESPAsync_WiFiManager()
 
 //////////////////////////////////////////
 
-#if USE_DYNAMIC_PARAMS
-bool ESPAsync_WiFiManager::addParameter(ESPAsync_WMParameter *p)
-#else
-void ESPAsync_WiFiManager::addParameter(ESPAsync_WMParameter *p)
-#endif
+bool ESP8266_Encompass::addDataField(Encompass_DataFields *p)
 {
-#if USE_DYNAMIC_PARAMS
-
-  if (_paramsCount == _max_params)
+  if (_DataFieldsCount == _max_DataFields)
   {
     // rezise the params array
-    _max_params += WIFI_MANAGER_MAX_PARAMS;
+    _max_DataFields += WIFI_MANAGER_MAX_DataFields;
     
-    LOGINFO1(F("Increasing _max_params to:"), _max_params);
+    LOGINFO1(F("Increasing _max_DataFields to:"), _max_DataFields);
     
-    ESPAsync_WMParameter** new_params = (ESPAsync_WMParameter**)realloc(_params, _max_params * sizeof(ESPAsync_WMParameter*));
+    Encompass_DataFields** new_DataFields = (Encompass_DataFields**)realloc(_DataFields, _max_DataFields * sizeof(Encompass_DataFields*));
 
-    if (new_params != NULL)
+    if (new_DataFields != NULL)
     {
-      _params = new_params;
+      _DataFields = new_DataFields;
     }
     else
     {
@@ -256,34 +236,17 @@ void ESPAsync_WiFiManager::addParameter(ESPAsync_WMParameter *p)
     }
   }
 
-  _params[_paramsCount] = p;
-  _paramsCount++;
+  _DataFields[_DataFieldsCount] = p;
+  _DataFieldsCount++;
   
   LOGINFO1(F("Adding parameter"), p->getID());
   
   return true;
-
-#else
-
-  // Danger here. Better to use Tzapu way here
-  if (_paramsCount < (WIFI_MANAGER_MAX_PARAMS))
-  {
-    _params[_paramsCount] = p;
-    _paramsCount++;
-     
-    LOGINFO1(F("Adding parameter"), p->getID());
-  }
-  else
-  {
-    LOGINFO("Can't add parameter. Full");
-  }
-
-#endif
 }
 
 //////////////////////////////////////////
 
-void ESPAsync_WiFiManager::setupConfigPortal()
+void ESP8266_Encompass::setupConfigPortal()
 {
   stopConfigPortal = false; //Signal not to close config portal
 
@@ -347,7 +310,7 @@ void ESPAsync_WiFiManager::setupConfigPortal()
   //////
   
   // Contributed by AlesSt (https://github.com/AlesSt) to solve issue softAP with custom IP sometimes not working
-  // See https://github.com/khoih-prog/ESPAsync_WiFiManager/issues/26 and https://github.com/espressif/arduino-esp32/issues/985
+  // See https://github.com/thewhiterabbit/ESP8266_Encompass/issues/26 and https://github.com/espressif/arduino-esp32/issues/985
   // delay 100ms to wait for SYSTEM_EVENT_AP_START
   delay(100);
   //////
@@ -356,7 +319,6 @@ void ESPAsync_WiFiManager::setupConfigPortal()
   if (_ap_static_ip)
   {
     LOGWARN3(F("Custom AP IP/GW/Subnet = "), _ap_static_ip, _ap_static_gw, _ap_static_sn);
-    
     WiFi.softAPConfig(_ap_static_ip, _ap_static_gw, _ap_static_sn);
   }
 
@@ -366,16 +328,16 @@ void ESPAsync_WiFiManager::setupConfigPortal()
 
   /* Setup web pages: root, wifi config pages, SO captive portal detectors and not found. */
   
-  server->on("/",         std::bind(&ESPAsync_WiFiManager::handleRoot,        this, std::placeholders::_1)).setFilter(ON_AP_FILTER);
-  server->on("/wifi",     std::bind(&ESPAsync_WiFiManager::handleWifi,        this, std::placeholders::_1)).setFilter(ON_AP_FILTER);
-  server->on("/wifisave", std::bind(&ESPAsync_WiFiManager::handleWifiSave,    this, std::placeholders::_1)).setFilter(ON_AP_FILTER);
-  server->on("/close",    std::bind(&ESPAsync_WiFiManager::handleServerClose, this, std::placeholders::_1)).setFilter(ON_AP_FILTER);
-  server->on("/i",        std::bind(&ESPAsync_WiFiManager::handleInfo,        this, std::placeholders::_1)).setFilter(ON_AP_FILTER);
-  server->on("/r",        std::bind(&ESPAsync_WiFiManager::handleReset,       this, std::placeholders::_1)).setFilter(ON_AP_FILTER);
-  server->on("/state",    std::bind(&ESPAsync_WiFiManager::handleState,       this, std::placeholders::_1)).setFilter(ON_AP_FILTER);
+  server->on("/",         std::bind(&ESP8266_Encompass::handleRoot,        this, std::placeholders::_1)).setFilter(ON_AP_FILTER);
+  server->on("/wifi",     std::bind(&ESP8266_Encompass::handleWifi,        this, std::placeholders::_1)).setFilter(ON_AP_FILTER);
+  server->on("/wifisave", std::bind(&ESP8266_Encompass::handleWifiSave,    this, std::placeholders::_1)).setFilter(ON_AP_FILTER);
+  server->on("/close",    std::bind(&ESP8266_Encompass::handleServerClose, this, std::placeholders::_1)).setFilter(ON_AP_FILTER);
+  server->on("/i",        std::bind(&ESP8266_Encompass::handleInfo,        this, std::placeholders::_1)).setFilter(ON_AP_FILTER);
+  server->on("/r",        std::bind(&ESP8266_Encompass::handleReset,       this, std::placeholders::_1)).setFilter(ON_AP_FILTER);
+  server->on("/state",    std::bind(&ESP8266_Encompass::handleState,       this, std::placeholders::_1)).setFilter(ON_AP_FILTER);
   //Microsoft captive portal. Maybe not needed. Might be handled by notFound handler.
-  server->on("/fwlink",   std::bind(&ESPAsync_WiFiManager::handleRoot,        this,std::placeholders::_1)).setFilter(ON_AP_FILTER);  
-  server->onNotFound (std::bind(&ESPAsync_WiFiManager::handleNotFound,        this, std::placeholders::_1));
+  server->on("/fwlink",   std::bind(&ESP8266_Encompass::handleRoot,        this,std::placeholders::_1)).setFilter(ON_AP_FILTER);  
+  server->onNotFound (std::bind(&ESP8266_Encompass::handleNotFound,        this, std::placeholders::_1));
   
   server->begin(); // Web server start
   
@@ -384,14 +346,9 @@ void ESPAsync_WiFiManager::setupConfigPortal()
 
 //////////////////////////////////////////
 
-boolean ESPAsync_WiFiManager::autoConnect()
+boolean ESP8266_Encompass::autoConnect()
 {
-#ifdef ESP8266
   String ssid = "ESP_" + String(ESP.getChipId());
-#else		//ESP32
-  String ssid = "ESP_" + String((uint32_t)ESP.getEfuseMac());
-#endif
-
   return autoConnect(ssid.c_str(), NULL);
 }
 
@@ -402,10 +359,9 @@ boolean ESPAsync_WiFiManager::autoConnect()
   See some discussion at https://github.com/tzapu/WiFiManager/issues/68
 */
 
-
 //////////////////////////////////////////
 
-boolean ESPAsync_WiFiManager::autoConnect(char const *apName, char const *apPassword)
+boolean ESP8266_Encompass::autoConnect(char const *apName, char const *apPassword)
 {
 #if AUTOCONNECT_NO_INVALIDATE
   LOGINFO(F("\nAutoConnect using previously saved SSID/PW, but keep previous settings"));
@@ -442,7 +398,7 @@ boolean ESPAsync_WiFiManager::autoConnect(char const *apName, char const *apPass
 ///////////////////////////////////////////////////////////////////
 // NEW
 
-String ESPAsync_WiFiManager::networkListAsString()
+String ESP8266_Encompass::networkListAsString()
 {
   String pager ;
   
@@ -456,18 +412,14 @@ String ESPAsync_WiFiManager::networkListAsString()
 
     if (_minimumQuality == -1 || _minimumQuality < quality) 
     {
-      String item = FPSTR(WM_HTTP_ITEM);
+      String item = FPSTR(E_HTTP_ITEM);
       String rssiQ;
       
       rssiQ += quality;
       item.replace("{v}", wifiSSIDs[i].SSID);
       item.replace("{r}", rssiQ);
       
-#if defined(ESP8266)
       if (wifiSSIDs[i].encryptionType != ENC_TYPE_NONE)
-#else
-      if (wifiSSIDs[i].encryptionType != WIFI_AUTH_OPEN)
-#endif
       {
         item.replace("{i}", "l");
       } 
@@ -491,7 +443,7 @@ String ESPAsync_WiFiManager::networkListAsString()
 
 //////////////////////////////////////////
 
-String ESPAsync_WiFiManager::scanModal()
+String ESP8266_Encompass::scanModal()
 {
   shouldscan = true;
   scan();
@@ -503,7 +455,7 @@ String ESPAsync_WiFiManager::scanModal()
 
 //////////////////////////////////////////
 
-void ESPAsync_WiFiManager::scan()
+void ESP8266_Encompass::scan()
 {
   if (!shouldscan) 
     return;
@@ -554,12 +506,7 @@ void ESPAsync_WiFiManager::scan()
         for (wifi_ssid_count_t i = 0; i < n; i++)
         {
           wifiSSIDs[i].duplicate=false;
-
-#if defined(ESP8266)
           bool res=WiFi.getNetworkInfo(i, wifiSSIDs[i].SSID, wifiSSIDs[i].encryptionType, wifiSSIDs[i].RSSI, wifiSSIDs[i].BSSID, wifiSSIDs[i].channel, wifiSSIDs[i].isHidden);
-#else
-          bool res=WiFi.getNetworkInfo(i, wifiSSIDs[i].SSID, wifiSSIDs[i].encryptionType, wifiSSIDs[i].RSSI, wifiSSIDs[i].BSSID, wifiSSIDs[i].channel);
- #endif
         }
 
         // RSSI SORT
@@ -605,7 +552,7 @@ void ESPAsync_WiFiManager::scan()
 
 //////////////////////////////////////////
 
-void ESPAsync_WiFiManager::startConfigPortalModeless(char const *apName, char const *apPassword) 
+void ESP8266_Encompass::startConfigPortalModeless(char const *apName, char const *apPassword) 
 {
   _modeless     = true;
   _apName       = apName;
@@ -639,7 +586,7 @@ void ESPAsync_WiFiManager::startConfigPortalModeless(char const *apName, char co
 
 //////////////////////////////////////////
 
-void ESPAsync_WiFiManager::loop()
+void ESP8266_Encompass::loop()
 {
 	safeLoop();
 	criticalLoop();
@@ -647,7 +594,7 @@ void ESPAsync_WiFiManager::loop()
 
 //////////////////////////////////////////
 
-void ESPAsync_WiFiManager::setInfo() 
+void ESP8266_Encompass::setInfo() 
 {
   if (needInfo) 
   {
@@ -661,7 +608,7 @@ void ESPAsync_WiFiManager::setInfo()
 
 // Anything that accesses WiFi, ESP or EEPROM goes here
 
-void ESPAsync_WiFiManager::criticalLoop()
+void ESP8266_Encompass::criticalLoop()
 {
   LOGDEBUG(F("criticalLoop: Enter"));
   
@@ -719,7 +666,7 @@ void ESPAsync_WiFiManager::criticalLoop()
 
 // Anything that doesn't access WiFi, ESP or EEPROM can go here
 
-void ESPAsync_WiFiManager::safeLoop()
+void ESP8266_Encompass::safeLoop()
 {
   #ifndef USE_EADNS	
   dnsServer->processNextRequest();
@@ -728,21 +675,16 @@ void ESPAsync_WiFiManager::safeLoop()
 
 ///////////////////////////////////////////////////////////
 
-boolean  ESPAsync_WiFiManager::startConfigPortal()
+boolean  ESP8266_Encompass::startConfigPortal()
 {
-#ifdef ESP8266
   String ssid = "ESP_" + String(ESP.getChipId());
-#else		//ESP32
-  String ssid = "ESP_" + String((uint32_t)ESP.getEfuseMac());
-#endif
   ssid.toUpperCase();
-
   return startConfigPortal(ssid.c_str(), NULL);
 }
 
 //////////////////////////////////////////
 
-boolean  ESPAsync_WiFiManager::startConfigPortal(char const *apName, char const *apPassword)
+boolean  ESP8266_Encompass::startConfigPortal(char const *apName, char const *apPassword)
 {
   //setup AP
   int connRes = WiFi.waitForConnectResult();
@@ -782,7 +724,7 @@ boolean  ESPAsync_WiFiManager::startConfigPortal(char const *apName, char const 
 
   bool TimedOut = true;
 
-  LOGINFO("ESPAsync_WiFiManager::startConfigPortal : Enter loop");
+  LOGINFO("ESP8266_Encompass::startConfigPortal : Enter loop");
   
   scannow = -1 ;
 
@@ -916,7 +858,7 @@ boolean  ESPAsync_WiFiManager::startConfigPortal(char const *apName, char const 
 
 //////////////////////////////////////////
 
-void ESPAsync_WiFiManager::setWifiStaticIP(void)
+void ESP8266_Encompass::setWifiStaticIP(void)
 { 
 #if USE_CONFIGURABLE_DNS
   if (_sta_static_ip)
@@ -964,7 +906,7 @@ void ESPAsync_WiFiManager::setWifiStaticIP(void)
 //////////////////////////////////////////
 
 // New from v1.1.1
-int ESPAsync_WiFiManager::reconnectWifi(void)
+int ESP8266_Encompass::reconnectWifi(void)
 {
   int connectResult;
   
@@ -989,7 +931,7 @@ int ESPAsync_WiFiManager::reconnectWifi(void)
 
 //////////////////////////////////////////
 
-int ESPAsync_WiFiManager::connectWifi(String ssid, String pass)
+int ESP8266_Encompass::connectWifi(String ssid, String pass)
 {
   // Add option if didn't input/update SSID/PW => Use the previous saved Credentials. \
   // But update the Static/DHCP options if changed.
@@ -1005,18 +947,11 @@ int ESPAsync_WiFiManager::connectWifi(String ssid, String pass)
     if (ssid != "")
       resetSettings();
 
-#ifdef ESP8266
     setWifiStaticIP();
-#endif
 
     WiFi.mode(WIFI_AP_STA); //It will start in station mode if it was previously in AP mode.
 
     setHostname();
-    
-    // KH, Fix ESP32 staticIP after exiting CP
-#ifdef ESP32
-    setWifiStaticIP();
-#endif
 
     if (ssid != "")
     {
@@ -1054,14 +989,13 @@ int ESPAsync_WiFiManager::connectWifi(String ssid, String pass)
 
 //////////////////////////////////////////
 
-wl_status_t ESPAsync_WiFiManager::waitForConnectResult()
+wl_status_t ESP8266_Encompass::waitForConnectResult()
 {
   if (_connectTimeout == 0)
   {
     unsigned long startedAt = millis();
     
     // In ESP8266, WiFi.waitForConnectResult() @return wl_status_t (0-255) or -1 on timeout !!!
-    // In ESP32, WiFi.waitForConnectResult() @return wl_status_t (0-255)
     // So, using int for connRes to be safe
     //int connRes = WiFi.waitForConnectResult();
     WiFi.waitForConnectResult();
@@ -1105,23 +1039,18 @@ wl_status_t ESPAsync_WiFiManager::waitForConnectResult()
 
 //////////////////////////////////////////
 
-void ESPAsync_WiFiManager::startWPS()
+void ESP8266_Encompass::startWPS()
 {
-#ifdef ESP8266
   LOGINFO("START WPS");
   WiFi.beginWPSConfig();
   LOGINFO("END WPS");
-#else		//ESP32
-  // TODO
-  LOGINFO("ESP32 WPS TODO");
-#endif
 }
 
 //////////////////////////////////////////
 
 //Convenient for debugging but wasteful of program space.
 //Remove if short of space
-const char* ESPAsync_WiFiManager::getStatus(int status)
+const char* ESP8266_Encompass::getStatus(int status)
 {
   switch (status)
   {
@@ -1142,61 +1071,50 @@ const char* ESPAsync_WiFiManager::getStatus(int status)
 
 //////////////////////////////////////////
 
-String ESPAsync_WiFiManager::getConfigPortalSSID()
+String ESP8266_Encompass::getConfigPortalSSID()
 {
   return _apName;
 }
 
 //////////////////////////////////////////
 
-String ESPAsync_WiFiManager::getConfigPortalPW()
+String ESP8266_Encompass::getConfigPortalPW()
 {
   return _apPassword;
 }
 
 //////////////////////////////////////////
 
-void ESPAsync_WiFiManager::resetSettings()
+void ESP8266_Encompass::resetSettings()
 {
   LOGINFO(F("Previous settings invalidated"));
-  
-#ifdef ESP8266  
   WiFi.disconnect(true);
-#else
-  WiFi.disconnect(true, true);
-  
-  // Temporary fix for issue of not clearing WiFi SSID/PW from flash of ESP32
-  // See https://github.com/khoih-prog/ESPAsync_WiFiManager/issues/25 and https://github.com/espressif/arduino-esp32/issues/400
-  WiFi.begin("0","0");
-  //////
-#endif
-
   delay(200);
   return;
 }
 
 //////////////////////////////////////////
 
-void ESPAsync_WiFiManager::setTimeout(unsigned long seconds)
+void ESP8266_Encompass::setTimeout(unsigned long seconds)
 {
   setConfigPortalTimeout(seconds);
 }
 
 //////////////////////////////////////////
 
-void ESPAsync_WiFiManager::setConfigPortalTimeout(unsigned long seconds)
+void ESP8266_Encompass::setConfigPortalTimeout(unsigned long seconds)
 {
   _configPortalTimeout = seconds * 1000;
 }
 
 //////////////////////////////////////////
 
-void ESPAsync_WiFiManager::setConnectTimeout(unsigned long seconds)
+void ESP8266_Encompass::setConnectTimeout(unsigned long seconds)
 {
   _connectTimeout = seconds * 1000;
 }
 
-void ESPAsync_WiFiManager::setDebugOutput(boolean debug)
+void ESP8266_Encompass::setDebugOutput(boolean debug)
 {
   _debug = debug;
 }
@@ -1204,7 +1122,7 @@ void ESPAsync_WiFiManager::setDebugOutput(boolean debug)
 //////////////////////////////////////////
 
 // KH, To enable dynamic/random channel
-int ESPAsync_WiFiManager::setConfigPortalChannel(int channel)
+int ESP8266_Encompass::setConfigPortalChannel(int channel)
 {
   // If channel < MIN_WIFI_CHANNEL - 1 or channel > MAX_WIFI_CHANNEL => channel = 1
   // If channel == 0 => will use random channel from MIN_WIFI_CHANNEL to MAX_WIFI_CHANNEL
@@ -1219,7 +1137,7 @@ int ESPAsync_WiFiManager::setConfigPortalChannel(int channel)
 
 //////////////////////////////////////////
 
-void ESPAsync_WiFiManager::setAPStaticIPConfig(IPAddress ip, IPAddress gw, IPAddress sn)
+void ESP8266_Encompass::setAPStaticIPConfig(IPAddress ip, IPAddress gw, IPAddress sn)
 {
   LOGINFO(F("setAPStaticIPConfig"));
   _ap_static_ip = ip;
@@ -1229,7 +1147,7 @@ void ESPAsync_WiFiManager::setAPStaticIPConfig(IPAddress ip, IPAddress gw, IPAdd
 
 //////////////////////////////////////////
 
-void ESPAsync_WiFiManager::setSTAStaticIPConfig(IPAddress ip, IPAddress gw, IPAddress sn)
+void ESP8266_Encompass::setSTAStaticIPConfig(IPAddress ip, IPAddress gw, IPAddress sn)
 {
   LOGINFO(F("setSTAStaticIPConfig"));
   _sta_static_ip = ip;
@@ -1240,7 +1158,7 @@ void ESPAsync_WiFiManager::setSTAStaticIPConfig(IPAddress ip, IPAddress gw, IPAd
 //////////////////////////////////////////
 
 #if USE_CONFIGURABLE_DNS
-void ESPAsync_WiFiManager::setSTAStaticIPConfig(IPAddress ip, IPAddress gw, IPAddress sn, IPAddress dns_address_1, IPAddress dns_address_2)
+void ESP8266_Encompass::setSTAStaticIPConfig(IPAddress ip, IPAddress gw, IPAddress sn, IPAddress dns_address_1, IPAddress dns_address_2)
 {
   LOGINFO(F("setSTAStaticIPConfig for USE_CONFIGURABLE_DNS"));
   _sta_static_ip = ip;
@@ -1253,23 +1171,23 @@ void ESPAsync_WiFiManager::setSTAStaticIPConfig(IPAddress ip, IPAddress gw, IPAd
 
 //////////////////////////////////////////
 
-void ESPAsync_WiFiManager::setMinimumSignalQuality(int quality)
+void ESP8266_Encompass::setMinimumSignalQuality(int quality)
 {
   _minimumQuality = quality;
 }
 
 //////////////////////////////////////////
 
-void ESPAsync_WiFiManager::setBreakAfterConfig(boolean shouldBreak)
+void ESP8266_Encompass::setBreakAfterConfig(boolean shouldBreak)
 {
   _shouldBreakAfterConfig = shouldBreak;
 }
 
 //////////////////////////////////////////
 
-void ESPAsync_WiFiManager::reportStatus(String &page)
+void ESP8266_Encompass::reportStatus(String &page)
 {
-  page += FPSTR(WM_HTTP_SCRIPT_NTP_MSG);
+  page += FPSTR(E_HTTP_SCRIPT_NTP_MSG);
 
   if (WiFi_SSID() != "")
   {
@@ -1298,7 +1216,7 @@ void ESPAsync_WiFiManager::reportStatus(String &page)
 //////////////////////////////////////////
 
 // Handle root or redirect to captive portal
-void ESPAsync_WiFiManager::handleRoot(AsyncWebServerRequest *request)
+void ESP8266_Encompass::handleRoot(AsyncWebServerRequest *request)
 {
   LOGDEBUG(F("Handle root"));
 
@@ -1311,13 +1229,13 @@ void ESPAsync_WiFiManager::handleRoot(AsyncWebServerRequest *request)
     return;
   }
 
-  String page = FPSTR(WM_HTTP_HEAD_START);
+  String page = FPSTR(E_HTTP_HEAD_START);
   page.replace("{v}", "Options");
-  page += FPSTR(WM_HTTP_SCRIPT);
-  page += FPSTR(WM_HTTP_SCRIPT_NTP);
-  page += FPSTR(WM_HTTP_STYLE);
+  page += FPSTR(E_HTTP_SCRIPT);
+  page += FPSTR(E_HTTP_SCRIPT_NTP);
+  page += FPSTR(E_HTTP_STYLE);
   page += _customHeadElement;
-  page += FPSTR(WM_HTTP_HEAD_END);
+  page += FPSTR(E_HTTP_HEAD_END);
   page += "<h2>";
   page += _apName;
 
@@ -1338,27 +1256,27 @@ void ESPAsync_WiFiManager::handleRoot(AsyncWebServerRequest *request)
 
   page += "</h2>";
   
-  page += FPSTR(WM_FLDSET_START);
+  page += FPSTR(E_FLDSET_START);
   
-  page += FPSTR(WM_HTTP_PORTAL_OPTIONS);
+  page += FPSTR(E_HTTP_PORTAL_OPTIONS);
   page += F("<div class=\"msg\">");
   reportStatus(page);
   page += F("</div>");
   
-  page += FPSTR(WM_FLDSET_END);
+  page += FPSTR(E_FLDSET_END);
     
-  page += FPSTR(WM_HTTP_END);
+  page += FPSTR(E_HTTP_END);
  
   AsyncWebServerResponse *response = request->beginResponse(200, "text/html", page);
-  response->addHeader(FPSTR(WM_HTTP_CACHE_CONTROL), FPSTR(WM_HTTP_NO_STORE));
+  response->addHeader(FPSTR(E_HTTP_CACHE_CONTROL), FPSTR(E_HTTP_NO_STORE));
   
 #if USING_CORS_FEATURE
-  // New from v1.1.0, for configure CORS Header, default to WM_HTTP_CORS_ALLOW_ALL = "*"
-  response->addHeader(FPSTR(WM_HTTP_CORS), _CORS_Header);
+  // New from v1.1.0, for configure CORS Header, default to E_HTTP_CORS_ALLOW_ALL = "*"
+  response->addHeader(FPSTR(E_HTTP_CORS), _CORS_Header);
 #endif
   
-  response->addHeader(FPSTR(WM_HTTP_PRAGMA), FPSTR(WM_HTTP_NO_CACHE));
-  response->addHeader(FPSTR(WM_HTTP_EXPIRES), "-1");
+  response->addHeader(FPSTR(E_HTTP_PRAGMA), FPSTR(E_HTTP_NO_CACHE));
+  response->addHeader(FPSTR(E_HTTP_EXPIRES), "-1");
   
   request->send(response);
 }
@@ -1366,20 +1284,20 @@ void ESPAsync_WiFiManager::handleRoot(AsyncWebServerRequest *request)
 //////////////////////////////////////////
 
 // Wifi config page handler
-void ESPAsync_WiFiManager::handleWifi(AsyncWebServerRequest *request)
+void ESP8266_Encompass::handleWifi(AsyncWebServerRequest *request)
 {
   LOGDEBUG(F("Handle WiFi"));
 
   // Disable _configPortalTimeout when someone accessing Portal to give some time to config
   _configPortalTimeout = 0;
    
-  String page = FPSTR(WM_HTTP_HEAD_START);
+  String page = FPSTR(E_HTTP_HEAD_START);
   page.replace("{v}", "Config ESP");
-  page += FPSTR(WM_HTTP_SCRIPT);
-  page += FPSTR(WM_HTTP_SCRIPT_NTP);
-  page += FPSTR(WM_HTTP_STYLE);
+  page += FPSTR(E_HTTP_SCRIPT);
+  page += FPSTR(E_HTTP_SCRIPT_NTP);
+  page += FPSTR(E_HTTP_STYLE);
   page += _customHeadElement;
-  page += FPSTR(WM_HTTP_HEAD_END);
+  page += FPSTR(E_HTTP_HEAD_END);
   page += F("<h2>Configuration</h2>");
 
   wifiSSIDscan = false;
@@ -1392,14 +1310,14 @@ void ESPAsync_WiFiManager::handleWifi(AsyncWebServerRequest *request)
   } 
   else 
   {
-    page += FPSTR(WM_FLDSET_START);
+    page += FPSTR(E_FLDSET_START);
     
     //display networks in page
     String pager = networkListAsString();
     
     page += pager;
     
-    page += FPSTR(WM_FLDSET_END);
+    page += FPSTR(E_FLDSET_END);
    
     page += "<br/>";
   }
@@ -1408,59 +1326,69 @@ void ESPAsync_WiFiManager::handleWifi(AsyncWebServerRequest *request)
   
   page += "<small>To reuse already connected AP, leave SSID & password fields empty</small>";
   
-  page += FPSTR(WM_HTTP_FORM_START);
+  page += FPSTR(E_HTTP_FORM_START);
   char parLength[2];
   
-  page += FPSTR(WM_FLDSET_START);
-    
+  page += FPSTR(E_FLDSET_START);
+
+  //
+  //
+  // This needs a lot of editing
+  //
   // add the extra parameters to the form
-  for (int i = 0; i < _paramsCount; i++)
+  //////
+  for (int i = 0; i < _DataFieldsCount; i++)
   {
-    if (_params[i] == NULL)
+    if (_DataFields[i] == NULL)
     {
       break;
     }
     
-    String pitem;
+    String dField;
     
-    switch (_params[i]->getLabelPlacement())
+    switch (_DataFields[i]->getLabelPlacement())
     {
-      case WFM_LABEL_BEFORE:
-        pitem = FPSTR(WM_HTTP_FORM_LABEL_BEFORE);
+      case E_LABEL_BEFORE:
+        dField = FPSTR(E_HTTP_FORM_LABEL_BEFORE);
         break;
-      case WFM_LABEL_AFTER:
-        pitem = FPSTR(WM_HTTP_FORM_LABEL_AFTER);
+      case E_LABEL_AFTER:
+        dField = FPSTR(E_HTTP_FORM_LABEL_AFTER);
         break;
       default:
-        // WFM_NO_LABEL
-        pitem = FPSTR(WM_HTTP_FORM_PARAM);
+        // E_NO_LABEL
+        dField = FPSTR(E_HTTP_FORM_PARAM);
         break;
     }
 
-    if (_params[i]->getID() != NULL)
+    if (_DataFields[i]->getID() != NULL)
     {
-      pitem.replace("{i}", _params[i]->getID());
-      pitem.replace("{n}", _params[i]->getID());
-      pitem.replace("{p}", _params[i]->getPlaceholder());
-      snprintf(parLength, 2, "%d", _params[i]->getValueLength());
-      pitem.replace("{l}", parLength);
-      pitem.replace("{v}", _params[i]->getValue());
-      pitem.replace("{c}", _params[i]->getCustomHTML());
+      dField.replace("{i}", _DataFields[i]->getID());
+      dField.replace("{n}", _DataFields[i]->getName());
+      dField.replace("{p}", _DataFields[i]->getPlaceholder());
+      snprintf(parLength, 2, "%d", _DataFields[i]->getValueLength());
+      dField.replace("{l}", parLength);
+      dField.replace("{v}", _DataFields[i]->getValue());
+      dField.replace("{c}", _DataFields[i]->getCustomHTML());
     }
     else
     {
-      pitem = _params[i]->getCustomHTML();
+      dField = _DataFields[i]->getCustomHTML();
     }
 
-    page += pitem;
+    page += dField;
   }
-  
-  if (_paramsCount > 0)
+  //
+  //
+  //
+  //
+  //
+
+  if (_DataFieldsCount > 0)
   {
-    page += FPSTR(WM_FLDSET_END);
+    page += FPSTR(E_FLDSET_END);
   }
 
-  if (_params[0] != NULL)
+  if (_DataFields[0] != NULL)
   {
     page += "<br/>";
   }
@@ -1478,10 +1406,10 @@ void ESPAsync_WiFiManager::handleWifi(AsyncWebServerRequest *request)
   if (_sta_static_ip)
 #endif  
   {
-    page += FPSTR(WM_FLDSET_START);
+    page += FPSTR(E_FLDSET_START);
     
-    String item = FPSTR(WM_HTTP_FORM_LABEL);
-    item += FPSTR(WM_HTTP_FORM_PARAM);
+    String item = FPSTR(E_HTTP_FORM_LABEL);
+    item += FPSTR(E_HTTP_FORM_PARAM);
     item.replace("{i}", "ip");
     item.replace("{n}", "ip");
     item.replace("{p}", "Static IP");
@@ -1490,8 +1418,8 @@ void ESPAsync_WiFiManager::handleWifi(AsyncWebServerRequest *request)
 
     page += item;
 
-    item = FPSTR(WM_HTTP_FORM_LABEL);
-    item += FPSTR(WM_HTTP_FORM_PARAM);
+    item = FPSTR(E_HTTP_FORM_LABEL);
+    item += FPSTR(E_HTTP_FORM_PARAM);
     item.replace("{i}", "gw");
     item.replace("{n}", "gw");
     item.replace("{p}", "Gateway IP");
@@ -1500,8 +1428,8 @@ void ESPAsync_WiFiManager::handleWifi(AsyncWebServerRequest *request)
 
     page += item;
 
-    item = FPSTR(WM_HTTP_FORM_LABEL);
-    item += FPSTR(WM_HTTP_FORM_PARAM);
+    item = FPSTR(E_HTTP_FORM_LABEL);
+    item += FPSTR(E_HTTP_FORM_PARAM);
     item.replace("{i}", "sn");
     item.replace("{n}", "sn");
     item.replace("{p}", "Subnet");
@@ -1512,8 +1440,8 @@ void ESPAsync_WiFiManager::handleWifi(AsyncWebServerRequest *request)
     //***** Added for DNS address options *****
     page += item;
 
-    item = FPSTR(WM_HTTP_FORM_LABEL);
-    item += FPSTR(WM_HTTP_FORM_PARAM);
+    item = FPSTR(E_HTTP_FORM_LABEL);
+    item += FPSTR(E_HTTP_FORM_PARAM);
     item.replace("{i}", "dns1");
     item.replace("{n}", "dns1");
     item.replace("{p}", "DNS1 IP");
@@ -1522,8 +1450,8 @@ void ESPAsync_WiFiManager::handleWifi(AsyncWebServerRequest *request)
 
     page += item;
 
-    item = FPSTR(WM_HTTP_FORM_LABEL);
-    item += FPSTR(WM_HTTP_FORM_PARAM);
+    item = FPSTR(E_HTTP_FORM_LABEL);
+    item += FPSTR(E_HTTP_FORM_PARAM);
     item.replace("{i}", "dns2");
     item.replace("{n}", "dns2");
     item.replace("{p}", "DNS2 IP");
@@ -1534,25 +1462,25 @@ void ESPAsync_WiFiManager::handleWifi(AsyncWebServerRequest *request)
 
     page += item;
     
-    page += FPSTR(WM_FLDSET_END);
+    page += FPSTR(E_FLDSET_END);
 
     page += "<br/>";
   }
 
-  page += FPSTR(WM_HTTP_FORM_END);
+  page += FPSTR(E_HTTP_FORM_END);
 
-  page += FPSTR(WM_HTTP_END);
+  page += FPSTR(E_HTTP_END);
 
   AsyncWebServerResponse *response = request->beginResponse(200, "text/html", page);
-  response->addHeader(FPSTR(WM_HTTP_CACHE_CONTROL), FPSTR(WM_HTTP_NO_STORE));
+  response->addHeader(FPSTR(E_HTTP_CACHE_CONTROL), FPSTR(E_HTTP_NO_STORE));
   
 #if USING_CORS_FEATURE
-  // New from v1.1.0, for configure CORS Header, default to WM_HTTP_CORS_ALLOW_ALL = "*"
-  response->addHeader(FPSTR(WM_HTTP_CORS), _CORS_Header);
+  // New from v1.1.0, for configure CORS Header, default to E_HTTP_CORS_ALLOW_ALL = "*"
+  response->addHeader(FPSTR(E_HTTP_CORS), _CORS_Header);
 #endif
   
-  response->addHeader(FPSTR(WM_HTTP_PRAGMA), FPSTR(WM_HTTP_NO_CACHE));
-  response->addHeader(FPSTR(WM_HTTP_EXPIRES), "-1");
+  response->addHeader(FPSTR(E_HTTP_PRAGMA), FPSTR(E_HTTP_NO_CACHE));
+  response->addHeader(FPSTR(E_HTTP_EXPIRES), "-1");
   
   request->send(response);
 
@@ -1562,34 +1490,44 @@ void ESPAsync_WiFiManager::handleWifi(AsyncWebServerRequest *request)
 //////////////////////////////////////////
 
 // Handle the WLAN save form and redirect to WLAN config page again
-void ESPAsync_WiFiManager::handleWifiSave(AsyncWebServerRequest *request)
+void ESP8266_Encompass::handleWifiSave(AsyncWebServerRequest *request)
 {
   LOGDEBUG(F("WiFi save"));
 
-  //SAVE/connect here
-  _ssid = request->arg("s").c_str();
-  _pass = request->arg("p").c_str();
-  
-  // New from v1.1.0
-  _ssid1 = request->arg("s1").c_str();
-  _pass1 = request->arg("p1").c_str();
+  //SAVE access points here
+  //
+  //
+  //
   //////
-
-  //parameters
-  for (int i = 0; i < _paramsCount; i++)
+  for (int i = 0; i < _APCount; i++)
   {
-    if (_params[i] == NULL)
+    _ssid[i] = request->arg("s").c_str();
+    _pass[i] = request->arg("p").c_str();
+  }
+  //
+  //
+  //
+  //
+  //
+
+  //
+  //
+  // DataFields
+  //////
+  for (int i = 0; i < _DataFieldsCount; i++)
+  {
+    if (_DataFields[i] == NULL)
     {
       break;
     }
 
     //read parameter
-    String value = request->arg(_params[i]->getID()).c_str();
+    String value = request->arg(_DataFields[i]->getID()).c_str();
     
     //store it in array
-    value.toCharArray(_params[i]->_value, _params[i]->_length);
+    value.toCharArray(_DataFields[i]->_value, _DataFields[i]->_length);
     
-    LOGDEBUG2(F("Parameter and value :"), _params[i]->getID(), value);
+    LOGDEBUG2(F("Parameter and value :"), _DataFields[i]->getID(), value);
   }
 
   if (request->hasArg("ip"))
@@ -1636,14 +1574,14 @@ void ESPAsync_WiFiManager::handleWifiSave(AsyncWebServerRequest *request)
   //*****  End added for DNS Options *****
 #endif
 
-  String page = FPSTR(WM_HTTP_HEAD_START);
+  String page = FPSTR(E_HTTP_HEAD_START);
   page.replace("{v}", "Credentials Saved");
-  page += FPSTR(WM_HTTP_SCRIPT);
-  page += FPSTR(WM_HTTP_SCRIPT_NTP);
-  page += FPSTR(WM_HTTP_STYLE);
+  page += FPSTR(E_HTTP_SCRIPT);
+  page += FPSTR(E_HTTP_SCRIPT_NTP);
+  page += FPSTR(E_HTTP_STYLE);
   page += _customHeadElement;
-  page += FPSTR(WM_HTTP_HEAD_END);
-  page += FPSTR(WM_HTTP_SAVED);
+  page += FPSTR(E_HTTP_HEAD_END);
+  page += FPSTR(E_HTTP_SAVED);
   page.replace("{v}", _apName);
   page.replace("{x}", _ssid);
   
@@ -1651,18 +1589,18 @@ void ESPAsync_WiFiManager::handleWifiSave(AsyncWebServerRequest *request)
   page.replace("{x1}", _ssid1);
   //////
   
-  page += FPSTR(WM_HTTP_END);
+  page += FPSTR(E_HTTP_END);
  
   AsyncWebServerResponse *response = request->beginResponse(200, "text/html", page);
-  response->addHeader(FPSTR(WM_HTTP_CACHE_CONTROL), FPSTR(WM_HTTP_NO_STORE));
+  response->addHeader(FPSTR(E_HTTP_CACHE_CONTROL), FPSTR(E_HTTP_NO_STORE));
   
 #if USING_CORS_FEATURE
-  // New from v1.1.0, for configure CORS Header, default to WM_HTTP_CORS_ALLOW_ALL = "*"
-  response->addHeader(FPSTR(WM_HTTP_CORS), _CORS_Header);
+  // New from v1.1.0, for configure CORS Header, default to E_HTTP_CORS_ALLOW_ALL = "*"
+  response->addHeader(FPSTR(E_HTTP_CORS), _CORS_Header);
 #endif
   
-  response->addHeader(FPSTR(WM_HTTP_PRAGMA), FPSTR(WM_HTTP_NO_CACHE));
-  response->addHeader(FPSTR(WM_HTTP_EXPIRES), "-1");
+  response->addHeader(FPSTR(E_HTTP_PRAGMA), FPSTR(E_HTTP_NO_CACHE));
+  response->addHeader(FPSTR(E_HTTP_EXPIRES), "-1");
   request->send(response);
 
   LOGDEBUG(F("Sent wifi save page"));
@@ -1676,17 +1614,17 @@ void ESPAsync_WiFiManager::handleWifiSave(AsyncWebServerRequest *request)
 //////////////////////////////////////////
 
 // Handle shut down the server page
-void ESPAsync_WiFiManager::handleServerClose(AsyncWebServerRequest *request)
+void ESP8266_Encompass::handleServerClose(AsyncWebServerRequest *request)
 {
   LOGDEBUG(F("Server Close"));
    
-  String page = FPSTR(WM_HTTP_HEAD_START);
+  String page = FPSTR(E_HTTP_HEAD_START);
   page.replace("{v}", "Close Server");
-  page += FPSTR(WM_HTTP_SCRIPT);
-  page += FPSTR(WM_HTTP_SCRIPT_NTP);
-  page += FPSTR(WM_HTTP_STYLE);
+  page += FPSTR(E_HTTP_SCRIPT);
+  page += FPSTR(E_HTTP_SCRIPT_NTP);
+  page += FPSTR(E_HTTP_STYLE);
   page += _customHeadElement;
-  page += FPSTR(WM_HTTP_HEAD_END);
+  page += FPSTR(E_HTTP_HEAD_END);
   page += F("<div class=\"msg\">");
   page += F("My network is <b>");
   page += WiFi_SSID();
@@ -1698,18 +1636,18 @@ void ESPAsync_WiFiManager::handleServerClose(AsyncWebServerRequest *request)
   
   //page += F("Push button on device to restart configuration server!");
   
-  page += FPSTR(WM_HTTP_END);
+  page += FPSTR(E_HTTP_END);
    
   AsyncWebServerResponse *response = request->beginResponse(200, "text/html", page);
-  response->addHeader(FPSTR(WM_HTTP_CACHE_CONTROL), FPSTR(WM_HTTP_NO_STORE));
+  response->addHeader(FPSTR(E_HTTP_CACHE_CONTROL), FPSTR(E_HTTP_NO_STORE));
   
 #if USING_CORS_FEATURE
-  // New from v1.1.0, for configure CORS Header, default to WM_HTTP_CORS_ALLOW_ALL = "*"
-  response->addHeader(FPSTR(WM_HTTP_CORS), _CORS_Header);
+  // New from v1.1.0, for configure CORS Header, default to E_HTTP_CORS_ALLOW_ALL = "*"
+  response->addHeader(FPSTR(E_HTTP_CORS), _CORS_Header);
 #endif
   
-  response->addHeader(FPSTR(WM_HTTP_PRAGMA), FPSTR(WM_HTTP_NO_CACHE));
-  response->addHeader(FPSTR(WM_HTTP_EXPIRES), "-1");
+  response->addHeader(FPSTR(E_HTTP_PRAGMA), FPSTR(E_HTTP_NO_CACHE));
+  response->addHeader(FPSTR(E_HTTP_EXPIRES), "-1");
   
   request->send(response);
   
@@ -1724,24 +1662,24 @@ void ESPAsync_WiFiManager::handleServerClose(AsyncWebServerRequest *request)
 //////////////////////////////////////////
 
 // Handle the info page
-void ESPAsync_WiFiManager::handleInfo(AsyncWebServerRequest *request)
+void ESP8266_Encompass::handleInfo(AsyncWebServerRequest *request)
 {
   LOGDEBUG(F("Info"));
 
   // Disable _configPortalTimeout when someone accessing Portal to give some time to config
   _configPortalTimeout = 0;
  
-  String page = FPSTR(WM_HTTP_HEAD_START);
+  String page = FPSTR(E_HTTP_HEAD_START);
   page.replace("{v}", "Info");
-  page += FPSTR(WM_HTTP_SCRIPT);
-  page += FPSTR(WM_HTTP_SCRIPT_NTP);
-  page += FPSTR(WM_HTTP_STYLE);
+  page += FPSTR(E_HTTP_SCRIPT);
+  page += FPSTR(E_HTTP_SCRIPT_NTP);
+  page += FPSTR(E_HTTP_STYLE);
   page += _customHeadElement;
   
   if (connect)
     page += F("<meta http-equiv=\"refresh\" content=\"5; url=/i\">");
   
-  page += FPSTR(WM_HTTP_HEAD_END);
+  page += FPSTR(E_HTTP_HEAD_END);
   
   page += F("<dl>");
   
@@ -1757,28 +1695,19 @@ void ESPAsync_WiFiManager::handleInfo(AsyncWebServerRequest *request)
   page += F("<h2>WiFi Information</h2>");
   reportStatus(page);
   
-  page += FPSTR(WM_FLDSET_START);
+  page += FPSTR(E_FLDSET_START);
   
   page += F("<h3>Device Data</h3>");
   
   page += F("<table class=\"table\">");
   page += F("<thead><tr><th>Name</th><th>Value</th></tr></thead><tbody><tr><td>Chip ID</td><td>");
 
-#ifdef ESP8266
   page += String(ESP.getChipId(), HEX);		//ESP.getChipId();
-#else		//ESP32
-  page += String((uint32_t)ESP.getEfuseMac(), HEX);		//ESP.getChipId();
-#endif
 
   page += F("</td></tr>");
   page += F("<tr><td>Flash Chip ID</td><td>");
 
-#ifdef ESP8266
   page += String(ESP.getFlashChipId(), HEX);		//ESP.getFlashChipId();
-#else		//ESP32
-  // TODO
-  page += F("TODO");
-#endif
 
   page += F("</td></tr>");
   page += F("<tr><td>IDE Flash Size</td><td>");
@@ -1786,12 +1715,7 @@ void ESPAsync_WiFiManager::handleInfo(AsyncWebServerRequest *request)
   page += F(" bytes</td></tr>");
   page += F("<tr><td>Real Flash Size</td><td>");
 
-#ifdef ESP8266
   page += ESP.getFlashChipRealSize();
-#else		//ESP32
-  // TODO
-  page += F("TODO");
-#endif
 
   page += F(" bytes</td></tr>");
   page += F("<tr><td>Access Point IP</td><td>");
@@ -1814,30 +1738,32 @@ void ESPAsync_WiFiManager::handleInfo(AsyncWebServerRequest *request)
   page += F("</td></tr>");
   page += F("</tbody></table>");
 
-  page += FPSTR(WM_FLDSET_END);
+  page += FPSTR(E_FLDSET_END);
   
 #if USE_AVAILABLE_PAGES  
-  page += FPSTR(WM_FLDSET_START);
+  page += FPSTR(E_FLDSET_START);
   
-  page += FPSTR(WM_HTTP_AVAILABLE_PAGES);
+  page += FPSTR(E_HTTP_AVAILABLE_PAGES);
   
-  page += FPSTR(WM_FLDSET_END);
+  page += FPSTR(E_FLDSET_END);
 #endif
 
-  page += F("<p/>More information about ESPAsync_WiFiManager at");
-  page += F("<p/><a href=\"https://github.com/khoih-prog/ESPAsync_WiFiManager\">https://github.com/khoih-prog/ESPAsync_WiFiManager</a>");
-  page += FPSTR(WM_HTTP_END);
+#ifdef SHOW_DEV_FOOTER
+  page += F("<p/>More information about ESP8266_Encompass at");
+  page += F("<p/><a href=\"https://github.com/thewhiterabbit/ESP8266_Encompass\">https://github.com/thewhiterabbit/ESP8266_Encompass</a>");
+#endif
+  page += FPSTR(E_HTTP_END);
  
   AsyncWebServerResponse *response = request->beginResponse(200, "text/html", page);
-  response->addHeader(FPSTR(WM_HTTP_CACHE_CONTROL), FPSTR(WM_HTTP_NO_STORE));
+  response->addHeader(FPSTR(E_HTTP_CACHE_CONTROL), FPSTR(E_HTTP_NO_STORE));
   
 #if USING_CORS_FEATURE
-  // New from v1.1.0, for configure CORS Header, default to WM_HTTP_CORS_ALLOW_ALL = "*"
-  response->addHeader(FPSTR(WM_HTTP_CORS), _CORS_Header);
+  // New from v1.1.0, for configure CORS Header, default to E_HTTP_CORS_ALLOW_ALL = "*"
+  response->addHeader(FPSTR(E_HTTP_CORS), _CORS_Header);
 #endif
   
-  response->addHeader(FPSTR(WM_HTTP_PRAGMA), FPSTR(WM_HTTP_NO_CACHE));
-  response->addHeader(FPSTR(WM_HTTP_EXPIRES), "-1");
+  response->addHeader(FPSTR(E_HTTP_PRAGMA), FPSTR(E_HTTP_NO_CACHE));
+  response->addHeader(FPSTR(E_HTTP_EXPIRES), "-1");
   
   request->send(response);
 
@@ -1847,7 +1773,7 @@ void ESPAsync_WiFiManager::handleInfo(AsyncWebServerRequest *request)
 //////////////////////////////////////////
 
 // Handle the state page
-void ESPAsync_WiFiManager::handleState(AsyncWebServerRequest *request)
+void ESP8266_Encompass::handleState(AsyncWebServerRequest *request)
 {
   LOGDEBUG(F("State - json"));
    
@@ -1875,15 +1801,15 @@ void ESPAsync_WiFiManager::handleState(AsyncWebServerRequest *request)
   page += F("\"}");
    
   AsyncWebServerResponse *response = request->beginResponse(200, "application/json", page);
-  response->addHeader(FPSTR(WM_HTTP_CACHE_CONTROL), FPSTR(WM_HTTP_NO_STORE));
+  response->addHeader(FPSTR(E_HTTP_CACHE_CONTROL), FPSTR(E_HTTP_NO_STORE));
   
 #if USING_CORS_FEATURE
-  // New from v1.1.0, for configure CORS Header, default to WM_HTTP_CORS_ALLOW_ALL = "*"
-  response->addHeader(FPSTR(WM_HTTP_CORS), _CORS_Header);
+  // New from v1.1.0, for configure CORS Header, default to E_HTTP_CORS_ALLOW_ALL = "*"
+  response->addHeader(FPSTR(E_HTTP_CORS), _CORS_Header);
 #endif
   
-  response->addHeader(FPSTR(WM_HTTP_PRAGMA), FPSTR(WM_HTTP_NO_CACHE));
-  response->addHeader(FPSTR(WM_HTTP_EXPIRES), "-1");
+  response->addHeader(FPSTR(E_HTTP_PRAGMA), FPSTR(E_HTTP_NO_CACHE));
+  response->addHeader(FPSTR(E_HTTP_EXPIRES), "-1");
   
   request->send(response);
   
@@ -1893,24 +1819,24 @@ void ESPAsync_WiFiManager::handleState(AsyncWebServerRequest *request)
 //////////////////////////////////////////
 
 // Handle the reset page
-void ESPAsync_WiFiManager::handleReset(AsyncWebServerRequest *request)
+void ESP8266_Encompass::handleReset(AsyncWebServerRequest *request)
 {
   LOGDEBUG(F("Reset"));
     
-  String page = FPSTR(WM_HTTP_HEAD_START);
+  String page = FPSTR(E_HTTP_HEAD_START);
   page.replace("{v}", "WiFi Information");
-  page += FPSTR(WM_HTTP_SCRIPT);
-  page += FPSTR(WM_HTTP_SCRIPT_NTP);
-  page += FPSTR(WM_HTTP_STYLE);
+  page += FPSTR(E_HTTP_SCRIPT);
+  page += FPSTR(E_HTTP_SCRIPT_NTP);
+  page += FPSTR(E_HTTP_STYLE);
   page += _customHeadElement;
-  page += FPSTR(WM_HTTP_HEAD_END);
+  page += FPSTR(E_HTTP_HEAD_END);
   page += F("Resetting");
-  page += FPSTR(WM_HTTP_END);
+  page += FPSTR(E_HTTP_END);
     
   AsyncWebServerResponse *response = request->beginResponse(200, "text/html", page);
-  response->addHeader(WM_HTTP_CACHE_CONTROL, WM_HTTP_NO_STORE);
-  response->addHeader(WM_HTTP_PRAGMA, WM_HTTP_NO_CACHE);
-  response->addHeader(WM_HTTP_EXPIRES, "-1");
+  response->addHeader(E_HTTP_CACHE_CONTROL, E_HTTP_NO_STORE);
+  response->addHeader(E_HTTP_PRAGMA, E_HTTP_NO_CACHE);
+  response->addHeader(E_HTTP_EXPIRES, "-1");
   
   request->send(response);
 
@@ -1918,23 +1844,18 @@ void ESPAsync_WiFiManager::handleReset(AsyncWebServerRequest *request)
   delay(5000);
   
   // Temporary fix for issue of not clearing WiFi SSID/PW from flash of ESP32
-  // See https://github.com/khoih-prog/ESP_WiFiManager/issues/25 and https://github.com/espressif/arduino-esp32/issues/400
+  // See https://github.com/thewhiterabbit/ESP_WiFiManager/issues/25 and https://github.com/espressif/arduino-esp32/issues/400
   resetSettings();
   //WiFi.disconnect(true); // Wipe out WiFi credentials.
   //////
 
-#ifdef ESP8266
   ESP.reset();
-#else		//ESP32
-  ESP.restart();
-#endif
-
   delay(2000);
 }
 
 //////////////////////////////////////////
 
-void ESPAsync_WiFiManager::handleNotFound(AsyncWebServerRequest *request)
+void ESP8266_Encompass::handleNotFound(AsyncWebServerRequest *request)
 {
   if (captivePortal(request))
   {
@@ -1958,9 +1879,9 @@ void ESPAsync_WiFiManager::handleNotFound(AsyncWebServerRequest *request)
   }
 
   AsyncWebServerResponse *response = request->beginResponse( 404, "text/plain", message );
-  response->addHeader(FPSTR(WM_HTTP_CACHE_CONTROL), FPSTR(WM_HTTP_NO_STORE)); 
-  response->addHeader(FPSTR(WM_HTTP_PRAGMA), FPSTR(WM_HTTP_NO_CACHE));
-  response->addHeader(FPSTR(WM_HTTP_EXPIRES), "-1");
+  response->addHeader(FPSTR(E_HTTP_CACHE_CONTROL), FPSTR(E_HTTP_NO_STORE)); 
+  response->addHeader(FPSTR(E_HTTP_PRAGMA), FPSTR(E_HTTP_NO_CACHE));
+  response->addHeader(FPSTR(E_HTTP_EXPIRES), "-1");
   
   request->send(response);
 }
@@ -1972,7 +1893,7 @@ void ESPAsync_WiFiManager::handleNotFound(AsyncWebServerRequest *request)
    Redirect to captive portal if we got a request for another domain.
    Return true in that case so the page handler do not try to handle the request again.
 */
-boolean ESPAsync_WiFiManager::captivePortal(AsyncWebServerRequest *request)
+boolean ESP8266_Encompass::captivePortal(AsyncWebServerRequest *request)
 {
   if (!isIp(request->host()))
   {
@@ -1991,7 +1912,7 @@ boolean ESPAsync_WiFiManager::captivePortal(AsyncWebServerRequest *request)
 //////////////////////////////////////////
 
 // start up config portal callback
-void ESPAsync_WiFiManager::setAPCallback(void(*func)(ESPAsync_WiFiManager* myWiFiManager))
+void ESP8266_Encompass::setAPCallback(void(*func)(ESP8266_Encompass* myWiFiManager))
 {
   _apcallback = func;
 }
@@ -1999,7 +1920,7 @@ void ESPAsync_WiFiManager::setAPCallback(void(*func)(ESPAsync_WiFiManager* myWiF
 //////////////////////////////////////////
 
 // start up save config callback
-void ESPAsync_WiFiManager::setSaveConfigCallback(void(*func)(void))
+void ESP8266_Encompass::setSaveConfigCallback(void(*func)(void))
 {
   _savecallback = func;
 }
@@ -2007,14 +1928,14 @@ void ESPAsync_WiFiManager::setSaveConfigCallback(void(*func)(void))
 //////////////////////////////////////////
 
 // sets a custom element to add to head, like a new style tag
-void ESPAsync_WiFiManager::setCustomHeadElement(const char* element) {
+void ESP8266_Encompass::setCustomHeadElement(const char* element) {
   _customHeadElement = element;
 }
 
 //////////////////////////////////////////
 
 // if this is true, remove duplicated Access Points - defaut true
-void ESPAsync_WiFiManager::setRemoveDuplicateAPs(boolean removeDuplicates)
+void ESP8266_Encompass::setRemoveDuplicateAPs(boolean removeDuplicates)
 {
   _removeDuplicateAPs = removeDuplicates;
 }
@@ -2023,7 +1944,7 @@ void ESPAsync_WiFiManager::setRemoveDuplicateAPs(boolean removeDuplicates)
 
 // Scan for WiFiNetworks in range and sort by signal strength
 // space for indices array allocated on the heap and should be freed when no longer required
-int ESPAsync_WiFiManager::scanWifiNetworks(int **indicesptr)
+int ESP8266_Encompass::scanWifiNetworks(int **indicesptr)
 {
   LOGDEBUG(F("Scanning Network"));
   
@@ -2119,7 +2040,7 @@ int ESPAsync_WiFiManager::scanWifiNetworks(int **indicesptr)
       }
     }
 
-#if (_ESPASYNC_WIFIMGR_LOGLEVEL_ > 2)
+#if (_ENCOMPASS_LOGLEVEL_ > 2)
     for (int i = 0; i < n; i++)
     {
       if (indices[i] == -1)
@@ -2138,7 +2059,7 @@ int ESPAsync_WiFiManager::scanWifiNetworks(int **indicesptr)
 
 //////////////////////////////////////////
 
-int ESPAsync_WiFiManager::getRSSIasQuality(int RSSI)
+int ESP8266_Encompass::getRSSIasQuality(int RSSI)
 {
   int quality = 0;
 
@@ -2161,7 +2082,7 @@ int ESPAsync_WiFiManager::getRSSIasQuality(int RSSI)
 //////////////////////////////////////////
 
 // Is this an IP?
-boolean ESPAsync_WiFiManager::isIp(String str)
+boolean ESP8266_Encompass::isIp(String str)
 {
   for (int i = 0; i < str.length(); i++)
   {
@@ -2178,7 +2099,7 @@ boolean ESPAsync_WiFiManager::isIp(String str)
 //////////////////////////////////////////
 
 // IP to String
-String ESPAsync_WiFiManager::toStringIp(IPAddress ip)
+String ESP8266_Encompass::toStringIp(IPAddress ip)
 {
   String res = "";
   for (int i = 0; i < 3; i++)
@@ -2193,12 +2114,12 @@ String ESPAsync_WiFiManager::toStringIp(IPAddress ip)
 
 //////////////////////////////////////////
 
-#ifdef ESP32
+#ifdef ESP32 // <-- Maybe remove this & all the contained lines within
 // We can't use WiFi.SSID() in ESP32 as it's only valid after connected.
 // SSID and Password stored in ESP32 wifi_ap_record_t and wifi_config_t are also cleared in reboot
 // Have to create a new function to store in EEPROM/SPIFFS for this purpose
 
-String ESPAsync_WiFiManager::getStoredWiFiSSID()
+String ESP8266_Encompass::getStoredWiFiSSID()
 {
   if (WiFi.getMode() == WIFI_MODE_NULL)
   {
@@ -2223,7 +2144,7 @@ String ESPAsync_WiFiManager::getStoredWiFiSSID()
 
 //////////////////////////////////////////
 
-String ESPAsync_WiFiManager::getStoredWiFiPass()
+String ESP8266_Encompass::getStoredWiFiPass()
 {
   if (WiFi.getMode() == WIFI_MODE_NULL)
   {
@@ -2236,7 +2157,6 @@ String ESPAsync_WiFiManager::getStoredWiFiPass()
   return String(reinterpret_cast<char*>(conf.sta.password));
 }
 #endif
-
 //////////////////////////////////////////
 
 
