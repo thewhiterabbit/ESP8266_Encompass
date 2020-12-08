@@ -1,6 +1,6 @@
 /****************************************************************************************************************************
   ESP8266_Encompass.h
-  For ESP8266 / ESP32 boards
+  For ESP8266 boards
 
   ESP8266_Encompass is a library for the ESP8266/Arduino platform, using (ESP)AsyncWebServer to enable easy
   configuration and reconfiguration of WiFi credentials using a Captive Portal.
