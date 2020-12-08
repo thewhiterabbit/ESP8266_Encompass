@@ -1,4 +1,4 @@
-/****************************************************************************************************************************
+/*
   ESP8266_Encompass.h
   For ESP8266 boards
 
@@ -18,7 +18,7 @@
   Version   Modified By   Date          Comments
   -------   -----------   ----------    -----------
   1.0.0     Vague Rabbit  12/7/2020     Initial edits after fork from Khoi Hoang - Removed all ESP32 code/includes
- *****************************************************************************************************************************/
+*/
 
 #pragma     once
 #define     ESP8266_ENCOMPASS_VERSION     "v1.0.0"
