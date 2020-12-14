@@ -1,9 +1,13 @@
 /*
-  ESP8266_Encompass-Impl.h
+  Impl.h
   For ESP8266 boards
 
-  ESP8266_Encompass is a library for the ESP8266/Arduino platform, using (ESP)AsyncWebServer to enable easy
-  configuration and reconfiguration of WiFi credentials using a Captive Portal.
+  *                                                                                           *
+  * This file may be split into multiple files in the near future for organizational reasons  *
+  *                                                                                           *
+
+  Encompass is a Twin library for the ESP8266 & ESP32/Arduino platform that enables IOT/WiFi controlled component creators to
+  build intuitive public facing UIs that manage WiFi Credentials, DNS Settings, Device Settings, and display device information.
 
   Modified from 
   1. Tzapu                https://github.com/tzapu/WiFiManager
@@ -11,119 +15,24 @@
   3. Alan Steremberg      https://github.com/alanswx/ESPAsyncWiFiManager
   4. Khoi Hoang           https://github.com/khoih-prog/ESPAsync_WiFiManager
 
-  Built by Vague Rabbit   https://github.com/thewhiterabbit/ESP8266_Encompass
-  Licensed under MIT license
-  Version: 1.3.0
+  Built by A. K. N.       https://github.com/thewhiterabbit/Encompass
 
-  Version   Modified By   Date          Comments
-  -------   -----------   ----------    -----------
-  1.0.0     Vague Rabbit  12/7/2020     Initial edits after fork from Khoi Hoang - Removed all ESP32 code/includes
+  License to be determined in the future.
+  
+  Version: 1.0.1
+
+  Version   Modified By             Date          Comments
+  -------   ---------------------   ----------    -----------
+  1.0.0     A. K. N.                12/07/2020    Initial edits after fork from Khoi Hoang - Removed all ESP32 code/includes.
+                                                  These twin libraries will be to each their own compatability.
+
+  1.0.1     A. K. N.                12/13/2020    Massive overhaul - Moved all classes to includes/class for best practice & organization,
+                                                  removed bloat, streamlined HTML Blocks for dynamic use, miscellaneous restructuring
 */
 
-#pragma once///////////////////////////////////
+#pragma once
 
-Encompass_DataFields::Encompass_DataFields(const char *custom)
-{
-  _id = NULL;
-  _placeholder = NULL;
-  _length = 0;
-  _value = NULL;
-  _labelPlacement = E_LABEL_BEFORE;
-
-  _customHTML = custom;
-}
-
-Encompass_DataFields::Encompass_DataFields(const char *id, const char *placeholder, const char *defaultValue, int length)
-{
-  init(id, placeholder, defaultValue, length, "", E_LABEL_BEFORE);
-}
-
-Encompass_DataFields::Encompass_DataFields(const char *id, const char *placeholder, const char *defaultValue, int length, const char *custom)
-{
-  init(id, placeholder, defaultValue, length, custom, E_LABEL_BEFORE);
-}
-
-Encompass_DataFields::Encompass_DataFields(const char *id, const char *placeholder, const char *defaultValue, int length, const char *custom, int labelPlacement)
-{
-  init(id, placeholder, defaultValue, length, custom, labelPlacement);
-}
-
-void Encompass_DataFields::init(const char *id, const char *placeholder, const char *defaultValue, int length, const char *custom, int labelPlacement)
-{
-  _id = id;
-  _placeholder = placeholder;
-  _length = length;
-  _labelPlacement = labelPlacement;
-
-  _value = new char[_length + 1];
-
-  if (_value != NULL)
-  {
-    memset(_value, 0, _length + 1);
-
-    if (defaultValue != NULL)
-    {
-      strncpy(_value, defaultValue, _length);
-    }
-  }
-  _customHTML = custom;
-}
-
-Encompass_DataFields::~Encompass_DataFields()
-{
-  if (_value != NULL)
-  {
-    delete[] _value;
-  }
-}
-
-const char* Encompass_DataFields::getValue()
-{
-  return _value;
-}
-
-const char* Encompass_DataFields::getID()
-{
-  return _id;
-}
-const char* Encompass_DataFields::getPlaceholder()
-{
-  return _placeholder;
-}
-
-int Encompass_DataFields::getValueLength()
-{
-  return _length;
-}
-
-int Encompass_DataFields::getLabelPlacement()
-{
-  return _labelPlacement;
-}
-const char* Encompass_DataFields::getCustomHTML()
-{
-  return _customHTML;
-}
-
-/**
-   [getDataFields description]
-   @access public
-*/
-Encompass_DataFields** ESP8266_Encompass::getDataFields() 
-{
-  return _DataFields;
-}///////////////////////////////////
-
-/**
-   [getDataFieldsCount description]
-   @access public
-*/
-int ESP8266_Encompass::getDataFieldsCount() 
-{
-  return _DataFieldsCount;
-}
-
-char* ESP8266_Encompass::getRFC952_hostname(const char* iHostname)
+char* Encompass::getRFC952_hostname(const char* iHostname)
 {
   memset(RFC952_hostname, 0, sizeof(RFC952_hostname));
 
@@ -146,8 +55,8 @@ char* ESP8266_Encompass::getRFC952_hostname(const char* iHostname)
   return RFC952_hostname;
 }
 
-ESP8266_Encompass::ESP8266_Encompass(AsyncWebServer * webserver, DNSServer *dnsserver, const char *iHostname)
-//ESP8266_Encompass::ESP8266_Encompass(const char *iHostname)
+Encompass::Encompass(AsyncWebServer * webserver, DNSServer *dnsserver, const char *iHostname)
+//Encompass::Encompass(const char *iHostname)
 {
 
   server    = webserver;
@@ -160,7 +69,7 @@ ESP8266_Encompass::ESP8266_Encompass(AsyncWebServer * webserver, DNSServer *dnss
   
 #if USE_DYNAMIC_DataFields
   _max_DataFields = WIFI_MANAGER_MAX_DataFields;
-  _DataFields = (Encompass_DataFields**)malloc(_max_DataFields * sizeof(Encompass_DataFields*));
+  _DataFields = (Encompass_DataFields)malloc(_max_DataFields * sizeof(Encompass_DataFields*));
 #endif
 
   //WiFi not yet started here, must call WiFi.mode(WIFI_STA) and modify function WiFiGenericClass::mode(wifi_mode_t m) !!!
@@ -186,53 +95,22 @@ ESP8266_Encompass::ESP8266_Encompass(AsyncWebServer * webserver, DNSServer *dnss
   networkIndices = NULL;
 }
 
-ESP8266_Encompass::~ESP8266_Encompass()
+Encompass::~Encompass()
 {
-  if (_DataFields != NULL)
-  {
-    LOGINFO(F("freeing allocated params!"));
-
-    free(_DataFields);
-  }
-
   if (networkIndices)
   {
     free(networkIndices); //indices array no longer required so free memory
   }
 }
 
-bool ESP8266_Encompass::addDataField(Encompass_DataFields *p)
+int _max_DataFields;
+
+bool Encompass::addDataField(DataFields *p)
 {
-  if (_DataFieldsCount == _max_DataFields)
-  {
-    // rezise the params array
-    _max_DataFields += ENCOMPASS_MAX_DATA_FIELDS;
-    
-    LOGINFO1(F("Increasing _max_DataFields to:"), _max_DataFields);
-    
-    Encompass_DataFields** new_DataFields = (Encompass_DataFields**)realloc(_DataFields, _max_DataFields * sizeof(Encompass_DataFields*));
-
-    if (new_DataFields != NULL)
-    {
-      _DataFields = new_DataFields;
-    }
-    else
-    {
-      LOGINFO(F("ERROR: failed to realloc params, size not increased!"));
- 
-      return false;
-    }
-  }
-
-  _DataFields[_DataFieldsCount] = p;
-  _DataFieldsCount++;
   
-  LOGINFO1(F("Adding parameter"), p->getID());
-  
-  return true;
 }
 
-void ESP8266_Encompass::setupConfigPortal()
+void Encompass::setupConfigPortal()
 {
   stopConfigPortal = false; //Signal not to close config portal
 
@@ -242,12 +120,7 @@ void ESP8266_Encompass::setupConfigPortal()
   if (WiFi.getAutoConnect() == 0)
     WiFi.setAutoConnect(1);
 
-#ifdef ESP8266
-  // KH, mod for Async
   server->reset();
-#else		//ESP32
-  server->reset();
-#endif
 
   /* Setup the DNS server redirecting all the domains to the apIP */
   if (dnsServer)
@@ -296,7 +169,7 @@ void ESP8266_Encompass::setupConfigPortal()
   //////
   
   // Contributed by AlesSt (https://github.com/AlesSt) to solve issue softAP with custom IP sometimes not working
-  // See https://github.com/thewhiterabbit/ESP8266_Encompass/issues/26 and https://github.com/espressif/arduino-esp32/issues/985
+  // See https://github.com/thewhiterabbit/Encompass/issues/26 and https://github.com/espressif/arduino-esp32/issues/985
   // delay 100ms to wait for SYSTEM_EVENT_AP_START
   delay(100);
   //////
@@ -314,23 +187,26 @@ void ESP8266_Encompass::setupConfigPortal()
 
   /* Setup web pages: root, wifi config pages, SO captive portal detectors and not found. */
   
-  server->on("/",         std::bind(&ESP8266_Encompass::handleRoot,         this, std::placeholders::_1)).setFilter(ON_AP_FILTER);
-  server->on("/wifi",     std::bind(&ESP8266_Encompass::handleWifi,         this, std::placeholders::_1)).setFilter(ON_AP_FILTER);
-  server->on("/save",     std::bind(&ESP8266_Encompass::handleSave,         this, std::placeholders::_1)).setFilter(ON_AP_FILTER);
-  server->on("/close",    std::bind(&ESP8266_Encompass::handleServerClose,  this, std::placeholders::_1)).setFilter(ON_AP_FILTER);
-  server->on("/i",        std::bind(&ESP8266_Encompass::handleInfo,         this, std::placeholders::_1)).setFilter(ON_AP_FILTER);
-  server->on("/r",        std::bind(&ESP8266_Encompass::handleReset,        this, std::placeholders::_1)).setFilter(ON_AP_FILTER);
-  server->on("/state",    std::bind(&ESP8266_Encompass::handleState,        this, std::placeholders::_1)).setFilter(ON_AP_FILTER);
+  server->on("/",               std::bind(&Encompass::handleRoot,         this, std::placeholders::_1)).setFilter(ON_AP_FILTER);
+  server->on("/wifi-setup",     std::bind(&Encompass::handleWifi,         this, std::placeholders::_1)).setFilter(ON_AP_FILTER);
+  server->on("/dns-setup",      std::bind(&Encompass::handleWifi,         this, std::placeholders::_1)).setFilter(ON_AP_FILTER);
+  server->on(DEVICE_SETUP_URI,  std::bind(&Encompass::handleWifi,         this, std::placeholders::_1)).setFilter(ON_AP_FILTER);
+  server->on("/save",           std::bind(&Encompass::handleSave,         this, std::placeholders::_1)).setFilter(ON_AP_FILTER);
+  server->on("/close",          std::bind(&Encompass::handleServerClose,  this, std::placeholders::_1)).setFilter(ON_AP_FILTER);
+  server->on("/info",           std::bind(&Encompass::handleInfo,         this, std::placeholders::_1)).setFilter(ON_AP_FILTER);
+  server->on("/reset",          std::bind(&Encompass::handleReset,        this, std::placeholders::_1)).setFilter(ON_AP_FILTER);
+  server->on("/state",          std::bind(&Encompass::handleState,        this, std::placeholders::_1)).setFilter(ON_AP_FILTER);
   // Microsoft captive portal. Maybe not needed. Might be handled by notFound handler.
-  server->on("/fwlink",   std::bind(&ESP8266_Encompass::handleRoot,         this,std::placeholders::_1)).setFilter(ON_AP_FILTER);  
-  server->onNotFound (std::bind(&ESP8266_Encompass::handleNotFound,         this, std::placeholders::_1));
+  // Ask about this - may need it for higher compatibility.
+  server->on("/fwlink",         std::bind(&Encompass::handleRoot,         this, std::placeholders::_1)).setFilter(ON_AP_FILTER);  
+  server->onNotFound(           std::bind(&Encompass::handleNotFound,     this, std::placeholders::_1));
   
   server->begin(); // Web server start
   
   LOGWARN(F("HTTP server started"));
 }
 
-boolean ESP8266_Encompass::autoConnect()
+boolean Encompass::autoConnect()
 {
   String ssid = "ESP_" + String(ESP.getChipId());
   return autoConnect(ssid.c_str(), NULL);
@@ -343,7 +219,7 @@ boolean ESP8266_Encompass::autoConnect()
   See some discussion at https://github.com/tzapu/WiFiManager/issues/68
 */
 
-boolean ESP8266_Encompass::autoConnect(char const *apName, char const *apPassword)
+boolean Encompass::autoConnect(char const *apName, char const *apPassword)
 {
 #if AUTOCONNECT_NO_INVALIDATE
   LOGINFO(F("\nAutoConnect using previously saved SSID/PW, but keep previous settings"));
@@ -378,7 +254,7 @@ boolean ESP8266_Encompass::autoConnect(char const *apName, char const *apPasswor
 /////////////////////////
 // NEW
 
-String ESP8266_Encompass::networkListAsString()
+String Encompass::networkListAsString()
 {
   String pager ;
   
@@ -392,7 +268,7 @@ String ESP8266_Encompass::networkListAsString()
 
     if (_minimumQuality == -1 || _minimumQuality < quality) 
     {
-      String item = FPSTR(E_WIFI_LIST_ITEM);
+      String item = FPSTR(WIFI_LIST_ITEM);
       String rssiQ;
       
       rssiQ += quality;
@@ -421,7 +297,7 @@ String ESP8266_Encompass::networkListAsString()
   return pager;
 }
 
-String ESP8266_Encompass::scanModal()
+String Encompass::scanModal()
 {
   shouldscan = true;
   scan();
@@ -431,7 +307,7 @@ String ESP8266_Encompass::scanModal()
   return pager;
 }
 
-void ESP8266_Encompass::scan()
+void Encompass::scan()
 {
   if (!shouldscan) 
     return;
@@ -526,7 +402,7 @@ void ESP8266_Encompass::scan()
   }
 }
 
-void ESP8266_Encompass::startConfigPortalModeless(char const *apName, char const *apPassword) 
+void Encompass::startConfigPortalModeless(char const *apName, char const *apPassword) 
 {
   _modeless     = true;
   _apName       = apName;
@@ -558,13 +434,13 @@ void ESP8266_Encompass::startConfigPortalModeless(char const *apName, char const
   scannow = -1 ;
 }
 
-void ESP8266_Encompass::loop()
+void Encompass::loop()
 {
 	safeLoop();
 	criticalLoop();
 }
 
-void ESP8266_Encompass::setInfo() 
+void Encompass::setInfo() 
 {
   if (needInfo) 
   {
@@ -576,7 +452,7 @@ void ESP8266_Encompass::setInfo()
 
 // Anything that accesses WiFi, ESP or EEPROM goes here
 
-void ESP8266_Encompass::criticalLoop()
+void Encompass::criticalLoop()
 {
   LOGDEBUG(F("criticalLoop: Enter"));
   
@@ -598,7 +474,7 @@ void ESP8266_Encompass::criticalLoop()
 
       // using user-provided  _ssid, _pass in place of system-stored ssid and pass
       //////
-      if (connectWifi(_ssid, _pass) != WL_CONNECTED) 
+      if (connectWifi(_ssid, _pass) != WL_CONNECTED)
       {
         LOGDEBUG(F("criticalLoop: Failed to connect."));
       } 
@@ -633,21 +509,21 @@ void ESP8266_Encompass::criticalLoop()
 
 // Anything that doesn't access WiFi, ESP or EEPROM can go here
 
-void ESP8266_Encompass::safeLoop()
+void Encompass::safeLoop()
 {
   #ifndef USE_EADNS	
   dnsServer->processNextRequest();
   #endif
 }/////////////////
 
-boolean  ESP8266_Encompass::startConfigPortal()
+boolean  Encompass::startConfigPortal()
 {
   String ssid = "ESP_" + String(ESP.getChipId());
   ssid.toUpperCase();
   return startConfigPortal(ssid.c_str(), NULL);
 }
 
-boolean  ESP8266_Encompass::startConfigPortal(char const *apName, char const *apPassword)
+boolean  Encompass::startConfigPortal(char const *apName, char const *apPassword)
 {
   //setup AP
   int connRes = WiFi.waitForConnectResult();
@@ -687,7 +563,7 @@ boolean  ESP8266_Encompass::startConfigPortal(char const *apName, char const *ap
 
   bool TimedOut = true;
 
-  LOGINFO("ESP8266_Encompass::startConfigPortal : Enter loop");
+  LOGINFO("Encompass::startConfigPortal : Enter loop");
   
   scannow = -1 ;
 
@@ -820,14 +696,14 @@ boolean  ESP8266_Encompass::startConfigPortal(char const *apName, char const *ap
   return  WiFi.status() == WL_CONNECTED;
 }
 
-void ESP8266_Encompass::setWifiStaticIP(void)
+void Encompass::setWifiStaticIP(void)
 { 
 #if USE_CONFIGURABLE_DNS
   if (_sta_static_ip)
   {
     LOGWARN(F("Custom STA IP/GW/Subnet"));
    
-    //***** Added section for DNS config option *****
+    //* Added section for DNS config option *
     if (_sta_static_dns1 && _sta_static_dns2) 
     { 
       LOGWARN(F("DNS1 and DNS2 set"));
@@ -846,7 +722,7 @@ void ESP8266_Encompass::setWifiStaticIP(void)
   
       WiFi.config(_sta_static_ip, _sta_static_gw, _sta_static_sn);
     }
-    //***** End added section for DNS config option *****
+    //* End added section for DNS config option *
 
     LOGINFO1(F("setWifiStaticIP IP ="), WiFi.localIP());
   }
@@ -866,7 +742,7 @@ void ESP8266_Encompass::setWifiStaticIP(void)
 }
 
 // New from v1.1.1
-int ESP8266_Encompass::reconnectWifi(void)
+int Encompass::reconnectWifi(void)
 {
   int connectResult;
   
@@ -889,7 +765,7 @@ int ESP8266_Encompass::reconnectWifi(void)
   return connectResult;
 }
 
-int ESP8266_Encompass::connectWifi(String ssid, String pass)
+int Encompass::connectWifi(String ssid, String pass)
 {
   // Add option if didn't input/update SSID/PW => Use the previous saved Credentials. \
   // But update the Static/DHCP options if changed.
@@ -945,13 +821,13 @@ int ESP8266_Encompass::connectWifi(String ssid, String pass)
   return connRes;
 }
 
-wl_status_t ESP8266_Encompass::waitForConnectResult()
+wl_status_t Encompass::waitForConnectResult()
 {
   if (_connectTimeout == 0)
   {
     unsigned long startedAt = millis();
     
-    // In ESP8266, WiFi.waitForConnectResult() @return wl_status_t (0-255) or -1 on timeout !!!
+    // In ESP8266, WiFi.waitForConnectResult() return wl_status_t (0-255) or -1 on timeout !!!
     // So, using int for connRes to be safe
     //int connRes = WiFi.waitForConnectResult();
     WiFi.waitForConnectResult();
@@ -993,7 +869,7 @@ wl_status_t ESP8266_Encompass::waitForConnectResult()
   }
 }
 
-void ESP8266_Encompass::startWPS()
+void Encompass::startWPS()
 {
   LOGINFO("START WPS");
   WiFi.beginWPSConfig();
@@ -1002,7 +878,7 @@ void ESP8266_Encompass::startWPS()
 
 //Convenient for debugging but wasteful of program space.
 //Remove if short of space
-const char* ESP8266_Encompass::getStatus(int status)
+const char* Encompass::getStatus(int status)
 {
   switch (status)
   {
@@ -1021,17 +897,17 @@ const char* ESP8266_Encompass::getStatus(int status)
   }
 }
 
-String ESP8266_Encompass::getConfigPortalSSID()
+String Encompass::getConfigPortalSSID()
 {
   return _apName;
 }
 
-String ESP8266_Encompass::getConfigPortalPW()
+String Encompass::getConfigPortalPW()
 {
   return _apPassword;
 }
 
-void ESP8266_Encompass::resetSettings()
+void Encompass::resetSettings()
 {
   LOGINFO(F("Previous settings invalidated"));
   WiFi.disconnect(true);
@@ -1039,28 +915,28 @@ void ESP8266_Encompass::resetSettings()
   return;
 }
 
-void ESP8266_Encompass::setTimeout(unsigned long seconds)
+void Encompass::setTimeout(unsigned long seconds)
 {
   setConfigPortalTimeout(seconds);
 }
 
-void ESP8266_Encompass::setConfigPortalTimeout(unsigned long seconds)
+void Encompass::setConfigPortalTimeout(unsigned long seconds)
 {
   _configPortalTimeout = seconds * 1000;
 }
 
-void ESP8266_Encompass::setConnectTimeout(unsigned long seconds)
+void Encompass::setConnectTimeout(unsigned long seconds)
 {
   _connectTimeout = seconds * 1000;
 }
 
-void ESP8266_Encompass::setDebugOutput(boolean debug)
+void Encompass::setDebugOutput(boolean debug)
 {
   _debug = debug;
 }
 
 // KH, To enable dynamic/random channel
-int ESP8266_Encompass::setConfigPortalChannel(int channel)
+int Encompass::setConfigPortalChannel(int channel)
 {
   // If channel < MIN_WIFI_CHANNEL - 1 or channel > MAX_WIFI_CHANNEL => channel = 1
   // If channel == 0 => will use random channel from MIN_WIFI_CHANNEL to MAX_WIFI_CHANNEL
@@ -1073,7 +949,7 @@ int ESP8266_Encompass::setConfigPortalChannel(int channel)
   return _WiFiAPChannel;
 }
 
-void ESP8266_Encompass::setAPStaticIPConfig(IPAddress ip, IPAddress gw, IPAddress sn)
+void Encompass::setAPStaticIPConfig(IPAddress ip, IPAddress gw, IPAddress sn)
 {
   LOGINFO(F("setAPStaticIPConfig"));
   _ap_static_ip = ip;
@@ -1081,7 +957,7 @@ void ESP8266_Encompass::setAPStaticIPConfig(IPAddress ip, IPAddress gw, IPAddres
   _ap_static_sn = sn;
 }
 
-void ESP8266_Encompass::setSTAStaticIPConfig(IPAddress ip, IPAddress gw, IPAddress sn)
+void Encompass::setSTAStaticIPConfig(IPAddress ip, IPAddress gw, IPAddress sn)
 {
   LOGINFO(F("setSTAStaticIPConfig"));
   _sta_static_ip = ip;
@@ -1090,30 +966,30 @@ void ESP8266_Encompass::setSTAStaticIPConfig(IPAddress ip, IPAddress gw, IPAddre
 }
 
 #if USE_CONFIGURABLE_DNS
-void ESP8266_Encompass::setSTAStaticIPConfig(IPAddress ip, IPAddress gw, IPAddress sn, IPAddress dns_address_1, IPAddress dns_address_2)
+void Encompass::setSTAStaticIPConfig(IPAddress ip, IPAddress gw, IPAddress sn, IPAddress dns_address_1, IPAddress dns_address_2)
 {
   LOGINFO(F("setSTAStaticIPConfig for USE_CONFIGURABLE_DNS"));
   _sta_static_ip = ip;
   _sta_static_gw = gw;
   _sta_static_sn = sn;
-  _sta_static_dns1 = dns_address_1; //***** Added argument *****
-  _sta_static_dns2 = dns_address_2; //***** Added argument *****
+  _sta_static_dns1 = dns_address_1; //* Added argument *
+  _sta_static_dns2 = dns_address_2; //* Added argument *
 }
 #endif
 
-void ESP8266_Encompass::setMinimumSignalQuality(int quality)
+void Encompass::setMinimumSignalQuality(int quality)
 {
   _minimumQuality = quality;
 }
 
-void ESP8266_Encompass::setBreakAfterConfig(boolean shouldBreak)
+void Encompass::setBreakAfterConfig(boolean shouldBreak)
 {
   _shouldBreakAfterConfig = shouldBreak;
 }
 
-void ESP8266_Encompass::reportStatus(String &page)
+void Encompass::reportStatus(String &page)
 {
-  page += FPSTR(E_HTML_SCRIPT_NTP_MSG);
+  page += FPSTR(HTML_SCRIPT_NTP_MSG);
 
   if (WiFi_SSID() != "")
   {
@@ -1140,7 +1016,7 @@ void ESP8266_Encompass::reportStatus(String &page)
 }
 
 // Handle root or redirect to captive portal
-void ESP8266_Encompass::handleRoot(AsyncWebServerRequest *request)
+void Encompass::handleRoot(AsyncWebServerRequest *request)
 {
   LOGDEBUG(F("Handle root"));
 
@@ -1153,13 +1029,13 @@ void ESP8266_Encompass::handleRoot(AsyncWebServerRequest *request)
     return;
   }
 
-  String page = FPSTR(E_HTML_HEAD_START);
+  String page = FPSTR(HTML_HEAD_START);
   page.replace("{v}", "Options");
-  page += FPSTR(E_HTML_SCRIPT);
-  page += FPSTR(E_HTML_SCRIPT_NTP);
-  page += FPSTR(E_HTML_STYLE);
+  page += FPSTR(HTML_SCRIPT);
+  page += FPSTR(HTML_SCRIPT_NTP);
+  page += FPSTR(HTML_STYLE);
   page += _customHeadElement;
-  page += FPSTR(E_HTML_HEAD_END);
+  page += FPSTR(HTML_HEAD_CLOSE);
   page += "<h2>";
   page += _apName;
 
@@ -1180,46 +1056,46 @@ void ESP8266_Encompass::handleRoot(AsyncWebServerRequest *request)
 
   page += "</h2>";
   
-  page += FPSTR(E_FLDSET_START);
+  page += FPSTR(FLDSET_START);
   
-  page += FPSTR(E_HTML_PORTAL);
+  page += FPSTR(HTML_PORTAL);
   page += F("<div class=\"msg\">");
   reportStatus(page);
   page += F("</div>");
   
-  page += FPSTR(E_FLDSET_END);
+  page += FPSTR(FLDSET_CLOSE);
     
-  page += FPSTR(E_HTML_END);
+  page += FPSTR(HTML_CLOSE);
  
   AsyncWebServerResponse *response = request->beginResponse(200, "text/html", page);
-  response->addHeader(FPSTR(E_HTTP_CACHE_CONTROL), FPSTR(E_HTTP_NO_STORE));
+  response->addHeader(FPSTR(HTTP_CACHE_CONTROL), FPSTR(HTTP_NO_STORE));
   
 #if USING_CORS_FEATURE
   // New from v1.1.0, for configure CORS Header, default to E_HTTP_CORS_ALLOW_ALL = "*"
-  response->addHeader(FPSTR(E_HTTP_CORS), _CORS_Header);
+  response->addHeader(FPSTR(HTTP_CORS), _CORS_Header);
 #endif
   
-  response->addHeader(FPSTR(E_HTTP_PRAGMA), FPSTR(E_HTTP_NO_CACHE));
-  response->addHeader(FPSTR(E_HTTP_EXPIRES), "-1");
+  response->addHeader(FPSTR(HTTP_PRAGMA), FPSTR(HTTP_NO_CACHE));
+  response->addHeader(FPSTR(HTTP_EXPIRES), "-1");
   
   request->send(response);
 }
 
 // Wifi config page handler
-void ESP8266_Encompass::handleWifi(AsyncWebServerRequest *request)
+void Encompass::handleWifi(AsyncWebServerRequest *request)
 {
   LOGDEBUG(F("Handle WiFi"));
 
   // Disable _configPortalTimeout when someone accessing Portal to give some time to config
   _configPortalTimeout = 0;
    
-  String page = FPSTR(E_HTML_HEAD_START);
+  String page = FPSTR(HTML_HEAD_START);
   page.replace("{v}", "Config ESP");
-  page += FPSTR(E_HTML_SCRIPT);
-  page += FPSTR(E_HTML_SCRIPT_NTP);
-  page += FPSTR(E_HTML_STYLE);
+  page += FPSTR(HTML_SCRIPT);
+  page += FPSTR(HTML_SCRIPT_NTP);
+  page += FPSTR(HTML_STYLE);
   page += _customHeadElement;
-  page += FPSTR(E_HTML_HEAD_END);
+  page += FPSTR(HTML_HEAD_CLOSE);
   page += F("<h2>Configuration</h2>");
 
   wifiSSIDscan = false;
@@ -1232,14 +1108,14 @@ void ESP8266_Encompass::handleWifi(AsyncWebServerRequest *request)
   } 
   else 
   {
-    page += FPSTR(E_FLDSET_START);
+    page += FPSTR(FLDSET_START);
     
     //display networks in page
     String pager = networkListAsString();
     
     page += pager;
     
-    page += FPSTR(E_FLDSET_END);
+    page += FPSTR(FLDSET_CLOSE);
    
     page += "<br/>";
   }
@@ -1248,10 +1124,10 @@ void ESP8266_Encompass::handleWifi(AsyncWebServerRequest *request)
   
   page += "<small>To reuse already connected AP, leave SSID & password fields empty</small>";
   
-  page += FPSTR(E_HTML_FORM_START);
+  page += FPSTR(HTML_FORM_START);
   char parLength[2];
   
-  page += FPSTR(E_FLDSET_START);
+  page += FPSTR(FLDSET_START);
 
   //
   //
@@ -1271,14 +1147,14 @@ void ESP8266_Encompass::handleWifi(AsyncWebServerRequest *request)
     switch (_DataFields[i]->getLabelPlacement())
     {
       case E_LABEL_BEFORE:
-        dField = FPSTR(E_HTML_FORM_LABEL_BEFORE);
+        dField = FPSTR(HTML_FORM_LABEL_BEFORE);
         break;
       case E_LABEL_AFTER:
-        dField = FPSTR(E_HTML_FORM_LABEL_AFTER);
+        dField = FPSTR(HTML_FORM_LABEL_AFTER);
         break;
       default:
         // E_NO_LABEL
-        dField = FPSTR(E_HTML_FORM_FIELD);
+        dField = FPSTR(HTML_FORM_FIELD);
         break;
     }
 
@@ -1307,7 +1183,7 @@ void ESP8266_Encompass::handleWifi(AsyncWebServerRequest *request)
 
   if (_DataFieldsCount > 0)
   {
-    page += FPSTR(E_FLDSET_END);
+    page += FPSTR(FLDSET_CLOSE);
   }
 
   if (_DataFields[0] != NULL)
@@ -1328,10 +1204,10 @@ void ESP8266_Encompass::handleWifi(AsyncWebServerRequest *request)
   if (_sta_static_ip)
 #endif  
   {
-    page += FPSTR(E_FLDSET_START);
+    page += FPSTR(FLDSET_START);
     
-    String item = FPSTR(E_HTML_FORM_LABEL);
-    item += FPSTR(E_HTML_FORM_FIELD);
+    String item = FPSTR(HTML_FORM_LABEL);
+    item += FPSTR(HTML_FORM_FIELD);
     item.replace("{i}", "ip");
     item.replace("{n}", "ip");
     item.replace("{p}", "Static IP");
@@ -1340,8 +1216,8 @@ void ESP8266_Encompass::handleWifi(AsyncWebServerRequest *request)
 
     page += item;
 
-    item = FPSTR(E_HTML_FORM_LABEL);
-    item += FPSTR(E_HTML_FORM_FIELD);
+    item = FPSTR(HTML_FORM_LABEL);
+    item += FPSTR(HTML_FORM_FIELD);
     item.replace("{i}", "gw");
     item.replace("{n}", "gw");
     item.replace("{p}", "Gateway IP");
@@ -1350,8 +1226,8 @@ void ESP8266_Encompass::handleWifi(AsyncWebServerRequest *request)
 
     page += item;
 
-    item = FPSTR(E_HTML_FORM_LABEL);
-    item += FPSTR(E_HTML_FORM_FIELD);
+    item = FPSTR(HTML_FORM_LABEL);
+    item += FPSTR(HTML_FORM_FIELD);
     item.replace("{i}", "sn");
     item.replace("{n}", "sn");
     item.replace("{p}", "Subnet");
@@ -1359,11 +1235,11 @@ void ESP8266_Encompass::handleWifi(AsyncWebServerRequest *request)
     item.replace("{v}", _sta_static_sn.toString());
 
   #if USE_CONFIGURABLE_DNS
-    //***** Added for DNS address options *****
+    //* Added for DNS address options *
     page += item;
 
-    item = FPSTR(E_HTML_FORM_LABEL);
-    item += FPSTR(E_HTML_FORM_FIELD);
+    item = FPSTR(HTML_FORM_LABEL);
+    item += FPSTR(HTML_FORM_FIELD);
     item.replace("{i}", "dns1");
     item.replace("{n}", "dns1");
     item.replace("{p}", "DNS1 IP");
@@ -1372,37 +1248,37 @@ void ESP8266_Encompass::handleWifi(AsyncWebServerRequest *request)
 
     page += item;
 
-    item = FPSTR(E_HTML_FORM_LABEL);
-    item += FPSTR(E_HTML_FORM_FIELD);
+    item = FPSTR(HTML_FORM_LABEL);
+    item += FPSTR(HTML_FORM_FIELD);
     item.replace("{i}", "dns2");
     item.replace("{n}", "dns2");
     item.replace("{p}", "DNS2 IP");
     item.replace("{l}", "15");
     item.replace("{v}", _sta_static_dns2.toString());
-    //***** End added for DNS address options *****
+    //* End added for DNS address options *
   #endif
 
     page += item;
     
-    page += FPSTR(E_FLDSET_END);
+    page += FPSTR(FLDSET_CLOSE);
 
     page += "<br/>";
   }
 
-  page += FPSTR(E_HTML_FORM_END);
+  page += FPSTR(HTML_FORM_CLOSE);
 
-  page += FPSTR(E_HTML_END);
+  page += FPSTR(HTML_CLOSE);
 
   AsyncWebServerResponse *response = request->beginResponse(200, "text/html", page);
-  response->addHeader(FPSTR(E_HTTP_CACHE_CONTROL), FPSTR(E_HTTP_NO_STORE));
+  response->addHeader(FPSTR(HTTP_CACHE_CONTROL), FPSTR(HTTP_NO_STORE));
   
 #if USING_CORS_FEATURE
   // New from v1.1.0, for configure CORS Header, default to E_HTTP_CORS_ALLOW_ALL = "*"
-  response->addHeader(FPSTR(E_HTTP_CORS), _CORS_Header);
+  response->addHeader(FPSTR(HTTP_CORS), _CORS_Header);
 #endif
   
-  response->addHeader(FPSTR(E_HTTP_PRAGMA), FPSTR(E_HTTP_NO_CACHE));
-  response->addHeader(FPSTR(E_HTTP_EXPIRES), "-1");
+  response->addHeader(FPSTR(HTTP_PRAGMA), FPSTR(HTTP_NO_CACHE));
+  response->addHeader(FPSTR(HTTP_EXPIRES), "-1");
   
   request->send(response);
 
@@ -1410,9 +1286,9 @@ void ESP8266_Encompass::handleWifi(AsyncWebServerRequest *request)
 }
 
 // Handle the WLAN save form and redirect to WLAN config page again
-void ESP8266_Encompass::handleSave(AsyncWebServerRequest *request)
+void Encompass::handleSave(AsyncWebServerRequest *request)
 {
-  LOGDEBUG(F("WiFi save"));
+  LOGDEBUG(F("Save"));
 
   //SAVE access points here
   //
@@ -1476,7 +1352,7 @@ void ESP8266_Encompass::handleSave(AsyncWebServerRequest *request)
   }
 
 #if USE_CONFIGURABLE_DNS
-  //*****  Added for DNS Options *****
+  //*  Added for DNS Options *
   if (request->hasArg("dns1"))
   {
     String dns1 = request->arg("dns1");
@@ -1492,17 +1368,17 @@ void ESP8266_Encompass::handleSave(AsyncWebServerRequest *request)
     
     LOGDEBUG1(F("New Static DNS2 ="), _sta_static_dns2.toString());
   }
-  //*****  End added for DNS Options *****
+  //*  End added for DNS Options *
 #endif
 
-  String page = FPSTR(E_HTML_HEAD_START);
+  String page = FPSTR(HTML_HEAD_START);
   page.replace("{v}", "Credentials Saved");
-  page += FPSTR(E_HTML_SCRIPT);
-  page += FPSTR(E_HTML_SCRIPT_NTP);
-  page += FPSTR(E_HTML_STYLE);
+  page += FPSTR(HTML_SCRIPT);
+  page += FPSTR(HTML_SCRIPT_NTP);
+  page += FPSTR(HTML_STYLE);
   page += _customHeadElement;
-  page += FPSTR(E_HTML_HEAD_END);
-  page += FPSTR(E_HTML_SAVED);
+  page += FPSTR(HTML_HEAD_CLOSE);
+  page += FPSTR(HTML_SAVED);
   page.replace("{v}", _apName);
 
   for (int i = 0; i < _APCount; i++)
@@ -1510,18 +1386,18 @@ void ESP8266_Encompass::handleSave(AsyncWebServerRequest *request)
     page.replace("{x"+i+"}", _ssid[i]);
   }
   
-  page += FPSTR(E_HTML_END);
+  page += FPSTR(HTML_CLOSE);
  
   AsyncWebServerResponse *response = request->beginResponse(200, "text/html", page);
-  response->addHeader(FPSTR(E_HTTP_CACHE_CONTROL), FPSTR(E_HTTP_NO_STORE));
+  response->addHeader(FPSTR(HTTP_CACHE_CONTROL), FPSTR(HTTP_NO_STORE));
   
 #if USING_CORS_FEATURE
   // New from v1.1.0, for configure CORS Header, default to E_HTTP_CORS_ALLOW_ALL = "*"
-  response->addHeader(FPSTR(E_HTTP_CORS), _CORS_Header);
+  response->addHeader(FPSTR(HTTP_CORS), _CORS_Header);
 #endif
   
-  response->addHeader(FPSTR(E_HTTP_PRAGMA), FPSTR(E_HTTP_NO_CACHE));
-  response->addHeader(FPSTR(E_HTTP_EXPIRES), "-1");
+  response->addHeader(FPSTR(HTTP_PRAGMA), FPSTR(HTTP_NO_CACHE));
+  response->addHeader(FPSTR(HTTP_EXPIRES), "-1");
   request->send(response);
 
   LOGDEBUG(F("Sent wifi save page"));
@@ -1533,17 +1409,17 @@ void ESP8266_Encompass::handleSave(AsyncWebServerRequest *request)
 }
 
 // Handle shut down the server page
-void ESP8266_Encompass::handleServerClose(AsyncWebServerRequest *request)
+void Encompass::handleServerClose(AsyncWebServerRequest *request)
 {
   LOGDEBUG(F("Server Close"));
    
-  String page = FPSTR(E_HTML_HEAD_START);
+  String page = FPSTR(HTML_HEAD_START);
   page.replace("{v}", "Close Server");
-  page += FPSTR(E_HTML_SCRIPT);
-  page += FPSTR(E_HTML_SCRIPT_NTP);
-  page += FPSTR(E_HTML_STYLE);
+  page += FPSTR(HTML_SCRIPT);
+  page += FPSTR(HTML_SCRIPT_NTP);
+  page += FPSTR(HTML_STYLE);
   page += _customHeadElement;
-  page += FPSTR(E_HTML_HEAD_END);
+  page += FPSTR(HTML_HEAD_CLOSE);
   page += F("<div class=\"msg\">");
   page += F("My network is <b>");
   page += WiFi_SSID();
@@ -1555,18 +1431,18 @@ void ESP8266_Encompass::handleServerClose(AsyncWebServerRequest *request)
   
   //page += F("Push button on device to restart configuration server!");
   
-  page += FPSTR(E_HTML_END);
+  page += FPSTR(HTML_CLOSE);
    
   AsyncWebServerResponse *response = request->beginResponse(200, "text/html", page);
-  response->addHeader(FPSTR(E_HTTP_CACHE_CONTROL), FPSTR(E_HTTP_NO_STORE));
+  response->addHeader(FPSTR(HTTP_CACHE_CONTROL), FPSTR(HTTP_NO_STORE));
   
 #if USING_CORS_FEATURE
   // New from v1.1.0, for configure CORS Header, default to E_HTTP_CORS_ALLOW_ALL = "*"
-  response->addHeader(FPSTR(E_HTTP_CORS), _CORS_Header);
+  response->addHeader(FPSTR(HTTP_CORS), _CORS_Header);
 #endif
   
-  response->addHeader(FPSTR(E_HTTP_PRAGMA), FPSTR(E_HTTP_NO_CACHE));
-  response->addHeader(FPSTR(E_HTTP_EXPIRES), "-1");
+  response->addHeader(FPSTR(HTTP_PRAGMA), FPSTR(HTTP_NO_CACHE));
+  response->addHeader(FPSTR(HTTP_EXPIRES), "-1");
   
   request->send(response);
   
@@ -1579,24 +1455,24 @@ void ESP8266_Encompass::handleServerClose(AsyncWebServerRequest *request)
 }
 
 // Handle the info page
-void ESP8266_Encompass::handleInfo(AsyncWebServerRequest *request)
+void Encompass::handleInfo(AsyncWebServerRequest *request)
 {
   LOGDEBUG(F("Info"));
 
   // Disable _configPortalTimeout when someone accessing Portal to give some time to config
   _configPortalTimeout = 0;
  
-  String page = FPSTR(E_HTML_HEAD_START);
+  String page = FPSTR(HTML_HEAD_START);
   page.replace("{v}", "Info");
-  page += FPSTR(E_HTML_SCRIPT);
-  page += FPSTR(E_HTML_SCRIPT_NTP);
-  page += FPSTR(E_HTML_STYLE);
+  page += FPSTR(HTML_SCRIPT);
+  page += FPSTR(HTML_SCRIPT_NTP);
+  page += FPSTR(HTML_STYLE);
   page += _customHeadElement;
   
   if (connect)
     page += F("<meta http-equiv=\"refresh\" content=\"5; url=/i\">");
   
-  page += FPSTR(E_HTML_HEAD_END);
+  page += FPSTR(HTML_HEAD_CLOSE);
   
   page += F("<dl>");
   
@@ -1612,7 +1488,7 @@ void ESP8266_Encompass::handleInfo(AsyncWebServerRequest *request)
   page += F("<h2>WiFi Information</h2>");
   reportStatus(page);
   
-  page += FPSTR(E_FLDSET_START);
+  page += FPSTR(FLDSET_START);
   
   page += F("<h3>Device Data</h3>");
   
@@ -1655,32 +1531,32 @@ void ESP8266_Encompass::handleInfo(AsyncWebServerRequest *request)
   page += F("</td></tr>");
   page += F("</tbody></table>");
 
-  page += FPSTR(E_FLDSET_END);
+  page += FPSTR(FLDSET_CLOSE);
   
 #if USE_AVAILABLE_PAGES  
-  page += FPSTR(E_FLDSET_START);
+  page += FPSTR(FLDSET_START);
   
-  page += FPSTR(E_HTTP_AVAILABLE_PAGES);
+  page += FPSTR(HTTP_AVAILABLE_PAGES);
   
-  page += FPSTR(E_FLDSET_END);
+  page += FPSTR(FLDSET_CLOSE);
 #endif
 
 #ifdef SHOW_DEV_FOOTER
-  page += F("<p/>More information about ESP8266_Encompass at");
-  page += F("<p/><a href=\"https://github.com/thewhiterabbit/ESP8266_Encompass\">https://github.com/thewhiterabbit/ESP8266_Encompass</a>");
+  page += F("<p/>More information about Encompass at");
+  page += F("<p/><a href=\"https://github.com/thewhiterabbit/Encompass\">https://github.com/thewhiterabbit/Encompass</a>");
 #endif
-  page += FPSTR(E_HTML_END);
+  page += FPSTR(HTML_CLOSE);
  
   AsyncWebServerResponse *response = request->beginResponse(200, "text/html", page);
-  response->addHeader(FPSTR(E_HTTP_CACHE_CONTROL), FPSTR(E_HTTP_NO_STORE));
+  response->addHeader(FPSTR(HTTP_CACHE_CONTROL), FPSTR(HTTP_NO_STORE));
   
 #if USING_CORS_FEATURE
   // New from v1.1.0, for configure CORS Header, default to E_HTTP_CORS_ALLOW_ALL = "*"
-  response->addHeader(FPSTR(E_HTTP_CORS), _CORS_Header);
+  response->addHeader(FPSTR(HTTP_CORS), _CORS_Header);
 #endif
   
-  response->addHeader(FPSTR(E_HTTP_PRAGMA), FPSTR(E_HTTP_NO_CACHE));
-  response->addHeader(FPSTR(E_HTTP_EXPIRES), "-1");
+  response->addHeader(FPSTR(HTTP_PRAGMA), FPSTR(HTTP_NO_CACHE));
+  response->addHeader(FPSTR(HTTP_EXPIRES), "-1");
   
   request->send(response);
 
@@ -1688,7 +1564,7 @@ void ESP8266_Encompass::handleInfo(AsyncWebServerRequest *request)
 }
 
 // Handle the state page
-void ESP8266_Encompass::handleState(AsyncWebServerRequest *request)
+void Encompass::handleState(AsyncWebServerRequest *request)
 {
   LOGDEBUG(F("State - json"));
    
@@ -1716,15 +1592,15 @@ void ESP8266_Encompass::handleState(AsyncWebServerRequest *request)
   page += F("\"}");
    
   AsyncWebServerResponse *response = request->beginResponse(200, "application/json", page);
-  response->addHeader(FPSTR(E_HTTP_CACHE_CONTROL), FPSTR(E_HTTP_NO_STORE));
+  response->addHeader(FPSTR(HTTP_CACHE_CONTROL), FPSTR(HTTP_NO_STORE));
   
 #if USING_CORS_FEATURE
   // New from v1.1.0, for configure CORS Header, default to E_HTTP_CORS_ALLOW_ALL = "*"
-  response->addHeader(FPSTR(E_HTTP_CORS), _CORS_Header);
+  response->addHeader(FPSTR(HTTP_CORS), _CORS_Header);
 #endif
   
-  response->addHeader(FPSTR(E_HTTP_PRAGMA), FPSTR(E_HTTP_NO_CACHE));
-  response->addHeader(FPSTR(E_HTTP_EXPIRES), "-1");
+  response->addHeader(FPSTR(HTTP_PRAGMA), FPSTR(HTTP_NO_CACHE));
+  response->addHeader(FPSTR(HTTP_EXPIRES), "-1");
   
   request->send(response);
   
@@ -1732,24 +1608,24 @@ void ESP8266_Encompass::handleState(AsyncWebServerRequest *request)
 }
 
 // Handle the reset page
-void ESP8266_Encompass::handleReset(AsyncWebServerRequest *request)
+void Encompass::handleReset(AsyncWebServerRequest *request)
 {
   LOGDEBUG(F("Reset"));
     
-  String page = FPSTR(E_HTML_HEAD_START);
+  String page = FPSTR(HTML_HEAD_START);
   page.replace("{v}", "WiFi Information");
-  page += FPSTR(E_HTML_SCRIPT);
-  page += FPSTR(E_HTML_SCRIPT_NTP);
-  page += FPSTR(E_HTML_STYLE);
+  page += FPSTR(HTML_SCRIPT);
+  page += FPSTR(HTML_SCRIPT_NTP);
+  page += FPSTR(HTML_STYLE);
   page += _customHeadElement;
-  page += FPSTR(E_HTML_HEAD_END);
+  page += FPSTR(HTML_HEAD_CLOSE);
   page += F("Resetting");
-  page += FPSTR(E_HTML_END);
+  page += FPSTR(HTML_CLOSE);
     
   AsyncWebServerResponse *response = request->beginResponse(200, "text/html", page);
-  response->addHeader(E_HTTP_CACHE_CONTROL, E_HTTP_NO_STORE);
-  response->addHeader(E_HTTP_PRAGMA, E_HTTP_NO_CACHE);
-  response->addHeader(E_HTTP_EXPIRES, "-1");
+  response->addHeader(HTTP_CACHE_CONTROL, E_HTTP_NO_STORE);
+  response->addHeader(HTTP_PRAGMA, E_HTTP_NO_CACHE);
+  response->addHeader(HTTP_EXPIRES, "-1");
   
   request->send(response);
 
@@ -1766,7 +1642,7 @@ void ESP8266_Encompass::handleReset(AsyncWebServerRequest *request)
   delay(2000);
 }
 
-void ESP8266_Encompass::handleNotFound(AsyncWebServerRequest *request)
+void Encompass::handleNotFound(AsyncWebServerRequest *request)
 {
   if (captivePortal(request))
   {
@@ -1790,19 +1666,19 @@ void ESP8266_Encompass::handleNotFound(AsyncWebServerRequest *request)
   }
 
   AsyncWebServerResponse *response = request->beginResponse( 404, "text/plain", message );
-  response->addHeader(FPSTR(E_HTTP_CACHE_CONTROL), FPSTR(E_HTTP_NO_STORE)); 
-  response->addHeader(FPSTR(E_HTTP_PRAGMA), FPSTR(E_HTTP_NO_CACHE));
-  response->addHeader(FPSTR(E_HTTP_EXPIRES), "-1");
+  response->addHeader(FPSTR(HTTP_CACHE_CONTROL), FPSTR(HTTP_NO_STORE)); 
+  response->addHeader(FPSTR(HTTP_PRAGMA), FPSTR(HTTP_NO_CACHE));
+  response->addHeader(FPSTR(HTTP_EXPIRES), "-1");
   
   request->send(response);
 }
 
-/**
+/*
    HTTPD redirector
    Redirect to captive portal if we got a request for another domain.
    Return true in that case so the page handler do not try to handle the request again.
 */
-boolean ESP8266_Encompass::captivePortal(AsyncWebServerRequest *request)
+boolean Encompass::captivePortal(AsyncWebServerRequest *request)
 {
   if (!isIp(request->host()))
   {
@@ -1819,31 +1695,31 @@ boolean ESP8266_Encompass::captivePortal(AsyncWebServerRequest *request)
 }
 
 // start up config portal callback
-void ESP8266_Encompass::setAPCallback(void(*func)(ESP8266_Encompass* myWiFiManager))
+void Encompass::setAPCallback(void(*func)(Encompass* myWiFiManager))
 {
   _apcallback = func;
 }
 
 // start up save config callback
-void ESP8266_Encompass::setSaveConfigCallback(void(*func)(void))
+void Encompass::setSaveConfigCallback(void(*func)(void))
 {
   _savecallback = func;
 }
 
 // sets a custom element to add to head, like a new style tag
-void ESP8266_Encompass::setCustomHeadElement(const char* element) {
+void Encompass::setCustomHeadElement(const char* element) {
   _customHeadElement = element;
 }
 
 // if this is true, remove duplicated Access Points - defaut true
-void ESP8266_Encompass::setRemoveDuplicateAPs(boolean removeDuplicates)
+void Encompass::setRemoveDuplicateAPs(boolean removeDuplicates)
 {
   _removeDuplicateAPs = removeDuplicates;
 }
 
 // Scan for WiFiNetworks in range and sort by signal strength
 // space for indices array allocated on the heap and should be freed when no longer required
-int ESP8266_Encompass::scanWifiNetworks(int **indicesptr)
+int Encompass::scanWifiNetworks(int indicesptr)
 {
   LOGDEBUG(F("Scanning Network"));
   
@@ -1956,7 +1832,7 @@ int ESP8266_Encompass::scanWifiNetworks(int **indicesptr)
   }
 }
 
-int ESP8266_Encompass::getRSSIasQuality(int RSSI)
+int Encompass::getRSSIasQuality(int RSSI)
 {
   int quality = 0;
 
@@ -1977,7 +1853,7 @@ int ESP8266_Encompass::getRSSIasQuality(int RSSI)
 }
 
 // Is this an IP?
-boolean ESP8266_Encompass::isIp(String str)
+boolean Encompass::isIp(String str)
 {
   for (int i = 0; i < str.length(); i++)
   {
@@ -1992,7 +1868,7 @@ boolean ESP8266_Encompass::isIp(String str)
 }
 
 // IP to String
-String ESP8266_Encompass::toStringIp(IPAddress ip)
+String Encompass::toStringIp(IPAddress ip)
 {
   String res = "";
   for (int i = 0; i < 3; i++)
@@ -2010,7 +1886,7 @@ String ESP8266_Encompass::toStringIp(IPAddress ip)
 // SSID and Password stored in ESP32 wifi_ap_record_t and wifi_config_t are also cleared in reboot
 // Have to create a new function to store in EEPROM/SPIFFS for this purpose
 
-String ESP8266_Encompass::getStoredWiFiSSID()
+String Encompass::getStoredWiFiSSID()
 {
   if (WiFi.getMode() == WIFI_MODE_NULL)
   {
@@ -2033,7 +1909,7 @@ String ESP8266_Encompass::getStoredWiFiSSID()
   return String();
 }
 
-String ESP8266_Encompass::getStoredWiFiPass()
+String Encompass::getStoredWiFiPass()
 {
   if (WiFi.getMode() == WIFI_MODE_NULL)
   {

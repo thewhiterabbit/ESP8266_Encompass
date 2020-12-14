@@ -1,9 +1,9 @@
 /*
-  ESP8266_Encompass_Debug.h
+  Debug.h
   For ESP8266 boards
 
-  ESP8266_Encompass is a library for the ESP8266/Arduino platform, using (ESP)AsyncWebServer to enable easy
-  configuration and reconfiguration of WiFi credentials as well as an easily customizable web UI in a Captive Portal.
+  Encompass is a Twin library for the ESP8266 & ESP32/Arduino platform that enables IOT/WiFi controlled component creators to
+  build intuitive public facing UIs that manage WiFi Credentials, DNS Settings, Device Settings, and display device information.
 
   Modified from 
   1. Tzapu                https://github.com/tzapu/WiFiManager
@@ -11,13 +11,21 @@
   3. Alan Steremberg      https://github.com/alanswx/ESPAsyncWiFiManager
   4. Khoi Hoang           https://github.com/khoih-prog/ESPAsync_WiFiManager
 
-  Built by Vague Rabbit   https://github.com/thewhiterabbit/ESP8266_Encompass
-  Licensed under MIT license
-  Version: 1.3.0
+  Original by Khoi Hoang  https://github.com/khoih-prog
 
-  Version   Modified By   Date          Comments
-  -------   -----------   ----------    -----------
-  1.0.0     Vague Rabbit  12/7/2020     Initial edits after fork from Khoi Hoang - Removed all ESP32 code/includes
+  Modified by A. K. N.    https://github.com/thewhiterabbit/Encompass
+
+  License to be determined in the future.
+  
+  Version: 1.0.1
+
+  Version   Modified By             Date          Comments
+  -------   ---------------------   ----------    -----------
+  1.0.0     A. K. N.                12/07/2020    Initial edits after fork from Khoi Hoang - Removed all ESP32 code/includes,
+                                                  removed examples.
+                                                  These twin libraries will be to each their own compatability.
+
+  1.0.1     A. K. N.                12/13/2020    Renamed (shortened) contsants
 */
 
 #pragma once
